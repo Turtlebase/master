@@ -111,8 +111,8 @@ export default function PassportPhotoPage() {
                             />
                         </div>
                          <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2 p-2 bg-background/50 backdrop-blur-sm rounded-lg">
-                            <Button variant="outline" size="icon" onClick={() => setZoom(z => Math.min(3, z + 0.1))}><ZoomIn/></Button>
-                            <Button variant="outline" size="icon" onClick={() => setZoom(z => Math.max(1, z - 0.1))}><ZoomOut/></Button>
+                            <Button variant="outline" size="icon" onClick={() => setZoom(z => Math.min(3, z + 0.05))}><ZoomIn/></Button>
+                            <Button variant="outline" size="icon" onClick={() => setZoom(z => Math.max(1, z - 0.05))}><ZoomOut/></Button>
                             <Button variant="outline" size="icon" onClick={() => setRotation(r => (r + 90) % 360)}><RotateCw/></Button>
                         </div>
                     </div>

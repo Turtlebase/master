@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -69,16 +69,19 @@ export default function DslrBlurPage() {
 
     const processImage = useCallback(() => {
         if (!originalImage || !imageRef.current || !selectionRect || !canvasContainerRef.current) {
-            toast({
-                variant: "destructive",
-                title: "Selection required",
-                description: "Please draw a rectangle on the image to select the area to keep in focus.",
-            });
+            if (selectionRect) { // Only toast if there's a rect but other things are missing
+                toast({
+                    variant: "destructive",
+                    title: "Processing Error",
+                    description: "Something went wrong. Please try uploading the image again.",
+                });
+            }
             return;
         }
 
         setIsProcessing(true);
 
+        // Use a timeout to avoid blocking the UI thread on heavy operations
         setTimeout(() => {
             try {
                 const img = imageRef.current!;
@@ -119,9 +122,15 @@ export default function DslrBlurPage() {
             } finally {
                 setIsProcessing(false);
             }
-        }, 100);
+        }, 50);
 
     }, [originalImage, selectionRect, blurIntensity, toast]);
+
+    useEffect(() => {
+        if (selectionRect) {
+            processImage();
+        }
+    }, [blurIntensity, processImage, selectionRect]);
     
     const handleResetSelection = () => {
         setSelectionRect(null);
@@ -177,7 +186,7 @@ export default function DslrBlurPage() {
             {originalImage ? (
                 <div className="space-y-6">
                      <p className="text-sm text-muted-foreground">
-                        {hasSelection ? "Adjust the blur intensity and click Generate." : "Draw a rectangle on the image to select the area to keep in focus."}
+                        {hasSelection ? "Adjust the blur intensity slider to see the effect." : "Draw a rectangle on the image to select the area to keep in focus."}
                      </p>
                     
                     <div>
@@ -191,14 +200,11 @@ export default function DslrBlurPage() {
                             onValueChange={(val) => setBlurIntensity(val[0])} 
                             max={50} 
                             step={1} 
+                            disabled={!hasSelection || isProcessing}
                         />
                     </div>
 
                     <div className="flex flex-col gap-4 !mt-8">
-                        <Button onClick={processImage} disabled={isProcessing || !hasSelection}>
-                            {isProcessing ? <Loader2 className="animate-spin" /> : <Wand2 />}
-                            Generate Blur
-                        </Button>
                         <Button onClick={handleResetSelection} variant="outline" disabled={isProcessing || !hasSelection}>
                            <Eraser />
                            Clear Selection
