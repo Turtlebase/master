@@ -1,3 +1,5 @@
+"use client";
+
 import ToolLayout from "@/components/tool-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

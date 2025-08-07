@@ -1,3 +1,5 @@
+"use client";
+
 import ToolLayout from "@/components/tool-layout";
 
 export default function ColoringConverterPage() {

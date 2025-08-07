@@ -1,3 +1,5 @@
+"use client";
+
 import ToolLayout from "@/components/tool-layout";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
