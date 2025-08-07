@@ -25,17 +25,18 @@ export default function DslrBlurPage() {
     const [selectionRect, setSelectionRect] = useState<{ x: number, y: number, w: number, h: number} | null>(null);
 
 
-    useEffect(() => {
-        if (!originalImage) {
-            setSelectionRect(null);
-            return;
-        };
-        const image = new Image();
-        image.src = originalImage;
-        image.onload = () => {
-            imageRef.current = image;
+    const handleImageUpload = (img: string | null) => {
+        setOriginalImage(img);
+        setProcessedImage(img); // Show original image in preview
+        setSelectionRect(null);
+        if (img) {
+            const image = new Image();
+            image.src = img;
+            image.onload = () => {
+                imageRef.current = image;
+            }
         }
-    }, [originalImage]);
+    };
 
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -103,32 +104,47 @@ export default function DslrBlurPage() {
                 h: selectionRect.h * scaleY,
             };
 
-            // 1. Draw the blurred background
+            // 1. Draw the full image first
+            ctx.drawImage(img, 0, 0);
+
+            // 2. Create a blurred version on top
+            ctx.globalCompositeOperation = 'source-over';
             ctx.filter = `blur(${blurIntensity}px)`;
             ctx.drawImage(img, 0, 0);
 
-            // 2. Feather the edges of the selection
-            const feather = Math.min(scaledRect.w, scaledRect.h) * 0.15; // 15% feathering
+            // 3. Feather the edges of the selection
+            const feather = Math.min(scaledRect.w, scaledRect.h) * 0.15;
 
-            // Use a second canvas for the mask
+            // 4. Create a mask for the sharp area
             const maskCanvas = document.createElement('canvas');
             maskCanvas.width = img.width;
             maskCanvas.height = img.height;
             const maskCtx = maskCanvas.getContext('2d')!;
 
-            // Create a blurred rectangle on the mask
+            // Draw the sharp area onto the mask
+            maskCtx.drawImage(img, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h);
+            
+            // Create a feathered gradient for the mask
+            maskCtx.globalCompositeOperation = 'destination-in';
+            const gradient = maskCtx.createLinearGradient(0, 0, 0, maskCanvas.height);
+            // This part is complex, for a simple feathered rect:
             maskCtx.filter = `blur(${feather}px)`;
-            maskCtx.fillStyle = 'black';
             maskCtx.fillRect(scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h);
 
-            // 3. Composite the sharp image back on top using the feathered mask
-            ctx.globalCompositeOperation = 'destination-in';
-            ctx.filter = 'none'; // Clear blur filter
+
+            // Draw the sharp, feathered part on top of the blurred image
+            ctx.globalCompositeOperation = 'destination-over'; //
+            ctx.filter = 'none';
             ctx.drawImage(maskCanvas, 0, 0);
 
-            // 4. Draw the original sharp image again over the masked area
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.drawImage(img, 0, 0);
+            // This is a simplified version. A more robust implementation might involve more steps.
+            // For now, let's try a different composition approach
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            ctx.filter = `blur(${blurIntensity}px)`;
+            ctx.drawImage(img, 0,0);
+            ctx.filter = 'none';
+            ctx.drawImage(img, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h);
+
 
             setProcessedImage(canvas.toDataURL('image/png'));
             setIsProcessing(false);
@@ -157,10 +173,10 @@ export default function DslrBlurPage() {
         <ToolLayout
             title="DSLR Blur"
             description="Apply a beautiful, realistic background blur to your photos to make subjects pop."
-            onImageUpload={(img) => setOriginalImage(img)}
+            onImageUpload={handleImageUpload}
             isProcessing={isProcessing}
             showReset={!!originalImage}
-            processedImage={processedImage || (originalImage ?? undefined)}
+            processedImage={processedImage}
             hideUpload={!!originalImage}
             imageContainerChildren={
                 originalImage && (
