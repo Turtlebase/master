@@ -78,7 +78,7 @@ export default function BackgroundRemoverPage() {
         <ToolLayout
             title="AI Background Remover"
             description="Automatically remove the background from any image with a single click."
-            onImageUpload={(img) => handleImageUpload(img, null)}
+            onImageUpload={(img) => handleImageUpload(img)}
             processedImage={processedImage || originalImage}
             isProcessing={isProcessing}
             showReset={hasImage}
