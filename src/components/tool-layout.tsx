@@ -10,7 +10,7 @@ import AiSuggestions from './ai-suggestions';
 interface ToolLayoutProps {
   title: string;
   description: string;
-  children: (image: string | null) => React.ReactNode;
+  children: React.ReactNode | ((image: string | null) => React.ReactNode);
 }
 
 export default function ToolLayout({ title, description, children }: ToolLayoutProps) {
@@ -106,7 +106,7 @@ export default function ToolLayout({ title, description, children }: ToolLayoutP
                             <CardTitle className="font-headline text-2xl">Controls</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {children(image)}
+                            {typeof children === 'function' ? children(image) : children}
                         </CardContent>
                     </Card>
 
