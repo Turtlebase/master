@@ -42,11 +42,20 @@ export default function BackgroundRemoverPage() {
             }
         } catch(e: any) {
             console.error(e);
-            toast({
-                variant: "destructive",
-                title: "AI Error",
-                description: e.message || "Could not process the image with the AI.",
-            });
+            const errorMessage = e.message || "Could not process the image with the AI.";
+            if (errorMessage.includes('overloaded') || errorMessage.includes('Unavailable')) {
+                 toast({
+                    variant: "destructive",
+                    title: "AI Service Busy",
+                    description: "The AI service is currently busy. Please wait a moment and try again.",
+                });
+            } else {
+                 toast({
+                    variant: "destructive",
+                    title: "AI Error",
+                    description: errorMessage,
+                });
+            }
         } finally {
             setIsProcessing(false);
         }
@@ -69,7 +78,7 @@ export default function BackgroundRemoverPage() {
         <ToolLayout
             title="AI Background Remover"
             description="Automatically remove the background from any image with a single click."
-            onImageUpload={(img) => handleImageUpload(img)}
+            onImageUpload={(img) => handleImageUpload(img, null)}
             processedImage={processedImage || originalImage}
             isProcessing={isProcessing}
             showReset={hasImage}
