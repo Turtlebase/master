@@ -3,10 +3,10 @@
 import { useState, useCallback } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Button } from '@/components/ui/button';
-import { Download, Loader2, Wand2, RotateCcw, CropIcon } from 'lucide-react';
+import { Download, Loader2, CropIcon, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Cropper from 'react-easy-crop';
-import { getCroppedImg } from '../passport-photo/cropUtils'; // Reusing the robust cropping logic
+import { getCroppedImg } from '../passport-photo/cropUtils';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 
@@ -79,6 +79,10 @@ export default function CropPage() {
         link.click();
         document.body.removeChild(link);
     };
+    
+    const handleRotate = () => {
+        setRotation((prevRotation) => (prevRotation + 90) % 360);
+    }
 
     const hasImage = !!originalImage;
     const currentAspect = aspect === 0 ? undefined : aspect;
@@ -94,18 +98,25 @@ export default function CropPage() {
             processedImage={processedImage}
             imageContainerChildren={
                 hasImage && !processedImage && (
-                    <div className="relative w-full h-full min-h-[400px] md:min-h-[500px] bg-muted/30 rounded-lg">
-                         <Cropper
-                            image={originalImage!}
-                            crop={crop}
-                            zoom={zoom}
-                            rotation={rotation}
-                            aspect={currentAspect}
-                            onCropChange={setCrop}
-                            onZoomChange={setZoom}
-                            onRotationChange={setRotation}
-                            onCropComplete={onCropComplete}
-                        />
+                    <div className="relative w-full h-full min-h-[400px] md:min-h-[500px] bg-muted/30 rounded-lg flex flex-col">
+                        <div className="relative flex-grow">
+                            <Cropper
+                                image={originalImage!}
+                                crop={crop}
+                                zoom={zoom}
+                                rotation={rotation}
+                                aspect={currentAspect}
+                                onCropChange={setCrop}
+                                onZoomChange={setZoom}
+                                onRotationChange={setRotation}
+                                onCropComplete={onCropComplete}
+                            />
+                        </div>
+                         <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2 p-2 bg-background/50 backdrop-blur-sm rounded-lg">
+                            <Button variant="outline" size="icon" onClick={() => setZoom(z => Math.min(3, z + 0.2))}><ZoomIn/></Button>
+                            <Button variant="outline" size="icon" onClick={() => setZoom(z => Math.max(1, z - 0.2))}><ZoomOut/></Button>
+                            <Button variant="outline" size="icon" onClick={handleRotate}><RotateCw/></Button>
+                        </div>
                     </div>
                 )
             }
@@ -128,11 +139,7 @@ export default function CropPage() {
                             <Label htmlFor="zoom" className="flex justify-between"><span>Zoom</span><span>{zoom.toFixed(2)}x</span></Label>
                             <Slider id="zoom" value={[zoom]} onValueChange={val => setZoom(val[0])} min={1} max={3} step={0.1} />
                         </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="rotation" className="flex justify-between"><span>Rotation</span><span>{rotation}°</span></Label>
-                            <Slider id="rotation" value={[rotation]} onValueChange={val => setRotation(val[0])} min={0} max={360} step={1} />
-                        </div>
-
+                        
                          <div className="flex flex-col gap-4 !mt-8">
                             <Button onClick={processImage} disabled={isProcessing}>
                                 {isProcessing ? (
