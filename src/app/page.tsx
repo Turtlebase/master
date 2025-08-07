@@ -17,7 +17,7 @@ const tools: Tool[] = [
   { name: 'Passport Photo Tool', description: 'Crop and resize photos for any official ID with standard presets.', href: '/passport-photo', icon: 'UserSquare' },
   { name: 'DSLR Blur', description: 'Apply a realistic background blur to your photos to make subjects pop.', href: '/blur-background', icon: 'Droplets' },
   { name: 'Image Resizer', description: 'Quickly resize any image to your specified dimensions.', href: '/resize', icon: 'StretchHorizontal' },
-  { name: 'Image Cropper', description: 'Crop your images with precision using presets or custom dimensions.', href: '/crop', icon: 'Crop' },
+  { name: 'Image Cropper', description: 'Crop images with precision using presets, rotation, and zoom.', href: '/crop', icon: 'Crop' },
   { name: 'Image Compressor', description: 'Reduce the file size of your images without sacrificing quality.', href: '/compress', icon: 'Minimize2' },
   { name: 'Image Filters', description: 'Apply classic filters like Grayscale and Sepia to your photos.', href: '/filters', icon: 'Wand2' }
 ];
