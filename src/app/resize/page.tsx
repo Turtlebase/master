@@ -1,37 +1,166 @@
 "use client";
 
+import { useState, useEffect, useCallback, useRef } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Button } from '@/components/ui/button';
+import { Download, Loader2, Wand2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ResizePage() {
+    const { toast } = useToast();
+    const [originalImage, setOriginalImage] = useState<string | null>(null);
+    const [processedImage, setProcessedImage] = useState<string | null>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
+    
+    const [width, setWidth] = useState<number | string>('');
+    const [height, setHeight] = useState<number | string>('');
+    const [keepAspectRatio, setKeepAspectRatio] = useState(true);
+    const [originalDimensions, setOriginalDimensions] = useState<{w: number, h: number} | null>(null);
+    
+    const aspectRatio = useRef<number>(1);
+
+    const handleImageUpload = (image: string | null) => {
+        setOriginalImage(image);
+        setProcessedImage(null);
+        if (image) {
+            const img = new Image();
+            img.onload = () => {
+                setOriginalDimensions({ w: img.width, h: img.height });
+                setWidth(img.width);
+                setHeight(img.height);
+                aspectRatio.current = img.width / img.height;
+            };
+            img.src = image;
+        } else {
+            setOriginalDimensions(null);
+            setWidth('');
+            setHeight('');
+        }
+    }
+
+    const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newWidth = e.target.value === '' ? '' : parseInt(e.target.value, 10);
+        setWidth(newWidth);
+        if (keepAspectRatio && newWidth !== '' && !isNaN(newWidth)) {
+            setHeight(Math.round(newWidth / aspectRatio.current));
+        }
+    };
+
+    const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newHeight = e.target.value === '' ? '' : parseInt(e.target.value, 10);
+        setHeight(newHeight);
+        if (keepAspectRatio && newHeight !== '' && !isNaN(newHeight)) {
+            setWidth(Math.round(newHeight * aspectRatio.current));
+        }
+    };
+
+    const processImage = useCallback(() => {
+        if (!originalImage || !width || !height || +width <= 0 || +height <= 0) {
+            toast({
+                variant: "destructive",
+                title: "Invalid Dimensions",
+                description: "Please enter valid positive numbers for width and height.",
+            });
+            return;
+        }
+
+        setIsProcessing(true);
+        setProcessedImage(null);
+
+        setTimeout(() => {
+            const img = new Image();
+            img.src = originalImage;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = +width;
+                canvas.height = +height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    setIsProcessing(false);
+                    toast({
+                        variant: "destructive",
+                        title: "Error",
+                        description: "Could not process the image.",
+                    });
+                    return;
+                }
+                ctx.drawImage(img, 0, 0, +width, +height);
+                setProcessedImage(canvas.toDataURL('image/png'));
+                setIsProcessing(false);
+            }
+            img.onerror = () => {
+                setIsProcessing(false);
+                 toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Could not load the original image for processing.",
+                });
+            }
+        }, 100);
+
+    }, [originalImage, width, height, toast]);
+
+    const handleDownload = () => {
+        if (!processedImage) return;
+        const link = document.createElement('a');
+        link.href = processedImage;
+        link.download = 'resized-image.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <ToolLayout
             title="Image Resizer"
             description="Quickly resize any image to your specified dimensions."
+            onImageUpload={handleImageUpload}
+            processedImage={processedImage || originalImage}
+            isProcessing={isProcessing}
+            showReset={!!originalImage}
+            hideUpload={!!originalImage}
         >
-            {(image) => (
-                <>
-                    {image && (
-                         <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label htmlFor="width">Width (px)</Label>
-                                    <Input id="width" type="number" placeholder="e.g., 1920" />
-                                </div>
-                                 <div>
-                                    <Label htmlFor="height">Height (px)</Label>
-                                    <Input id="height" type="number" placeholder="e.g., 1080" />
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
-                                <Label htmlFor="aspect-ratio">Keep Aspect Ratio</Label>
-                                <Switch id="aspect-ratio" defaultChecked />
-                            </div>
+            {originalImage ? (
+                <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <Label htmlFor="width">Width (px)</Label>
+                            <Input id="width" type="number" placeholder="e.g., 1920" value={width} onChange={handleWidthChange} />
                         </div>
+                         <div>
+                            <Label htmlFor="height">Height (px)</Label>
+                            <Input id="height" type="number" placeholder="e.g., 1080" value={height} onChange={handleHeightChange}/>
+                        </div>
+                    </div>
+                    {originalDimensions && (
+                         <p className="text-xs text-muted-foreground -mt-2 text-center">
+                            Original: {originalDimensions.w} x {originalDimensions.h}
+                         </p>
                     )}
-                </>
+                    <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <Label htmlFor="aspect-ratio" className="flex flex-col gap-1">
+                           <span>Keep Aspect Ratio</span>
+                           <span className="text-xs font-normal text-muted-foreground">Prevents distortion</span>
+                        </Label>
+                        <Switch id="aspect-ratio" checked={keepAspectRatio} onCheckedChange={setKeepAspectRatio} />
+                    </div>
+
+                    <div className="flex flex-col gap-4 !mt-8">
+                        <Button onClick={processImage} disabled={isProcessing}>
+                            {isProcessing ? <Loader2 className="animate-spin" /> : <Wand2 />}
+                            Generate
+                        </Button>
+                        <Button onClick={handleDownload} disabled={isProcessing || !processedImage || processedImage === originalImage} variant="secondary">
+                            <Download />
+                            Download Image
+                        </Button>
+                    </div>
+                </div>
+            ) : (
+                <p className="text-sm text-muted-foreground">Upload an image to get started.</p>
             )}
         </ToolLayout>
     );
