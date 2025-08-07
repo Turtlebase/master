@@ -24,7 +24,7 @@ export default function ToolLayout({
     onImageUpload, 
     processedImage,
     isProcessing = false,
-    showReset = true,
+    showReset = false,
 }: ToolLayoutProps) {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -68,7 +68,7 @@ export default function ToolLayout({
     }
   }
 
-  const displayImage = processedImage || (showReset ? "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" : null);
+  const displayImage = processedImage;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -100,7 +100,7 @@ export default function ToolLayout({
           ) : (
             <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 relative group bg-card p-4 rounded-lg shadow-sm min-h-[400px] flex items-center justify-center">
-                    {isProcessing && (
+                    {(isProcessing || !displayImage) && (
                          <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center z-10 rounded-lg">
                             <Loader2 className="w-12 h-12 text-primary animate-spin" />
                             <p className="mt-4 text-lg">Processing...</p>
@@ -112,9 +112,9 @@ export default function ToolLayout({
                             alt="Processed image"
                             width={800}
                             height={800}
-                            className="rounded-lg object-contain w-full max-h-[70vh]"
+                            className={`rounded-lg object-contain w-full max-h-[70vh] transition-opacity duration-300 ${isProcessing ? 'opacity-20' : 'opacity-100'}`}
                         />
-                    ): <Skeleton className="w-full h-full min-h-[400px] rounded-lg" />}
+                    ): <Skeleton className="w-full h-full min-h-[400px] rounded-lg absolute inset-0" />}
 
                     {showReset && (
                         <Button
