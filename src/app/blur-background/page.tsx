@@ -16,15 +16,21 @@ export default function DslrBlurPage() {
     
     const [blurIntensity, setBlurIntensity] = useState(10);
     
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const selectionRef = useRef<HTMLCanvasElement>(null);
+    const imageRef = useRef<HTMLImageElement>(null);
+    const selectionCanvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [selectionRect, setSelectionRect] = useState<{ x: number, y: number, w: number, h: number} | null>(null);
+    const [startPoint, setStartPoint] = useState<{x: number, y: number} | null>(null);
 
     const handleImageUpload = (image: string | null) => {
         setOriginalImage(image);
-        setProcessedImage(image);
+        setProcessedImage(null);
         setSelectionRect(null);
+        const img = new Image();
+        img.src = image || '';
+        img.onload = () => {
+            imageRef.current = img;
+        }
     }
 
     const getMousePos = (canvas: HTMLCanvasElement, evt: React.MouseEvent) => {
@@ -38,45 +44,79 @@ export default function DslrBlurPage() {
     const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!originalImage) return;
         const pos = getMousePos(e.currentTarget, e);
-        setSelectionRect({ x: pos.x, y: pos.y, w: 0, h: 0 });
+        setStartPoint(pos);
         setIsDrawing(true);
     };
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!isDrawing || !selectionRect) return;
+        if (!isDrawing || !startPoint) return;
         const pos = getMousePos(e.currentTarget, e);
-        setSelectionRect(prev => prev ? { ...prev, w: pos.x - prev.x, h: pos.y - prev.y } : null);
+        setSelectionRect({ 
+            x: Math.min(pos.x, startPoint.x), 
+            y: Math.min(pos.y, startPoint.y), 
+            w: Math.abs(pos.x - startPoint.x), 
+            h: Math.abs(pos.y - startPoint.y) 
+        });
     };
 
     const handleMouseUp = () => {
         setIsDrawing(false);
-        // We can trigger the blur effect here automatically after selection
-        // or wait for the user to click the button. Let's wait.
+        setStartPoint(null);
     };
 
     const drawSelection = useCallback(() => {
-        const canvas = selectionRef.current;
-        if (!canvas || !selectionRect) return;
+        const canvas = selectionCanvasRef.current;
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
-
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        if (selectionRect.w !== 0 || selectionRect.h !== 0) {
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+        if (selectionRect && (selectionRect.w > 0 || selectionRect.h > 0)) {
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.8)';
             ctx.lineWidth = 2;
-            ctx.setLineDash([5, 5]);
+            ctx.setLineDash([6, 6]);
             ctx.strokeRect(selectionRect.x, selectionRect.y, selectionRect.w, selectionRect.h);
             ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.1)';
+            ctx.fillRect(selectionRect.x, selectionRect.y, selectionRect.w, selectionRect.h);
         }
     }, [selectionRect]);
     
+    useEffect(() => {
+        const canvas = selectionCanvasRef.current;
+        const image = imageRef.current;
+        if (canvas && image) {
+            const parent = canvas.parentElement;
+            if (parent) {
+                const { clientWidth, clientHeight } = parent;
+                const imageAspectRatio = image.width / image.height;
+                const parentAspectRatio = clientWidth / clientHeight;
+
+                let renderWidth, renderHeight;
+
+                if (imageAspectRatio > parentAspectRatio) {
+                    renderWidth = clientWidth;
+                    renderHeight = clientWidth / imageAspectRatio;
+                } else {
+                    renderHeight = clientHeight;
+                    renderWidth = clientHeight * imageAspectRatio;
+                }
+                canvas.style.width = `${renderWidth}px`;
+                canvas.style.height = `${renderHeight}px`;
+                canvas.width = renderWidth;
+                canvas.height = renderHeight;
+                drawSelection();
+            }
+        }
+    }, [originalImage, drawSelection]);
+
     useEffect(() => {
         drawSelection();
     }, [selectionRect, drawSelection]);
 
     const processImage = useCallback(() => {
-        if (!originalImage || !selectionRect) {
+        if (!originalImage || !imageRef.current || !selectionRect) {
             toast({
                 variant: "destructive",
                 title: "Selection required",
@@ -86,73 +126,92 @@ export default function DslrBlurPage() {
         }
 
         setIsProcessing(true);
+        setProcessedImage(null);
+
         setTimeout(() => {
-             const img = new Image();
-             img.crossOrigin = "anonymous";
-             img.src = originalImage;
-             img.onload = () => {
-                const canvas = canvasRef.current;
-                if(!canvas) {
-                    setIsProcessing(false);
-                    return;
-                };
-
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) {
-                    setIsProcessing(false);
-                    return;
-                };
-                
-                // Draw blurred background
-                ctx.filter = `blur(${blurIntensity}px)`;
-                ctx.drawImage(img, 0, 0);
-                
-                // Draw the sharp foreground on top
-                ctx.filter = 'none';
-                
-                // Normalize selection rect
-                const x = selectionRect.w < 0 ? selectionRect.x + selectionRect.w : selectionRect.x;
-                const y = selectionRect.h < 0 ? selectionRect.y + selectionRect.h : selectionRect.y;
-                const w = Math.abs(selectionRect.w);
-                const h = Math.abs(selectionRect.h);
-                
-                // Create a clipping path for a soft edge
-                const feather = Math.min(w, h) * 0.1; // 10% feathering
-                ctx.save();
-                ctx.beginPath();
-                ctx.rect(x, y, w, h);
-                ctx.clip();
-                
-                // Draw the sharp image inside the clipped area
-                ctx.drawImage(img, 0, 0);
-                
-                // Draw the sharp portion again but slightly smaller for feathering
-                 if (feather > 0) {
-                    const gradient = ctx.createRadialGradient(x + w / 2, y + h / 2, Math.min(w,h)/2 - feather, x + w / 2, y + h / 2, Math.min(w,h)/2);
-                    gradient.addColorStop(0, 'rgba(0,0,0,1)');
-                    gradient.addColorStop(1, 'rgba(0,0,0,0)');
-                    ctx.globalCompositeOperation = 'destination-in';
-                    ctx.fillStyle = gradient;
-                    ctx.fillRect(0,0,canvas.width, canvas.height);
-                }
-                
-                ctx.restore();
-                ctx.drawImage(img, x,y,w,h, x,y,w,h);
-
-                setProcessedImage(canvas.toDataURL('image/png'));
+             const img = imageRef.current!;
+             const canvas = document.createElement('canvas');
+             canvas.width = img.width;
+             canvas.height = img.height;
+             const ctx = canvas.getContext('2d');
+             if (!ctx) {
                 setIsProcessing(false);
-             }
-             img.onerror = () => {
-                toast({
-                    variant: "destructive",
-                    title: "Image Error",
-                    description: "Could not load the image for processing.",
-                });
-                setIsProcessing(false);
-             }
-        }, 50);
+                return;
+             };
+            
+            // Map selection from rendered size to original image size
+            const selectionCanvas = selectionCanvasRef.current!;
+            const scaleX = img.width / selectionCanvas.width;
+            const scaleY = img.height / selectionCanvas.height;
+
+            const originalSelection = {
+                x: selectionRect.x * scaleX,
+                y: selectionRect.y * scaleY,
+                w: selectionRect.w * scaleX,
+                h: selectionRect.h * scaleY,
+            }
+
+            // Draw blurred background
+            ctx.filter = `blur(${blurIntensity}px)`;
+            ctx.drawImage(img, 0, 0);
+            
+            // Draw the sharp foreground on top
+            ctx.filter = 'none';
+
+            // Create a feathered mask
+            const maskCanvas = document.createElement('canvas');
+            maskCanvas.width = img.width;
+            maskCanvas.height = img.height;
+            const maskCtx = maskCanvas.getContext('2d')!;
+            
+            const feather = Math.min(originalSelection.w, originalSelection.h) * 0.2;
+            const gradient = maskCtx.createLinearGradient(0, originalSelection.y, 0, originalSelection.y + feather);
+            gradient.addColorStop(0, 'rgba(0,0,0,0)');
+            gradient.addColorStop(1, 'rgba(0,0,0,1)');
+
+            maskCtx.fillStyle = 'black'; // Opaque
+            maskCtx.fillRect(
+                originalSelection.x + feather, 
+                originalSelection.y + feather, 
+                originalSelection.w - feather * 2, 
+                originalSelection.h - feather * 2
+            );
+
+            // Create feathered edges
+            const outerRect = new Path2D();
+            outerRect.rect(0, 0, img.width, img.height);
+            const innerRect = new Path2D();
+            innerRect.rect(
+                originalSelection.x, 
+                originalSelection.y, 
+                originalSelection.w, 
+                originalSelection.h
+            );
+
+            maskCtx.save();
+            maskCtx.clip(outerRect);
+            maskCtx.clip(innerRect, 'evenodd');
+            
+            // Apply blur to the mask itself to create the feather
+            maskCtx.filter = `blur(${feather}px)`;
+            maskCtx.fillStyle = "black";
+            maskCtx.fillRect(
+                originalSelection.x,
+                originalSelection.y,
+                originalSelection.w,
+                originalSelection.h,
+            );
+            maskCtx.restore();
+
+            // Use mask to composite sharp image onto blurred image
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.drawImage(maskCanvas, 0, 0);
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.drawImage(img, 0, 0);
+             
+            setProcessedImage(canvas.toDataURL('image/png'));
+            setIsProcessing(false);
+        }, 100);
 
     }, [originalImage, selectionRect, blurIntensity, toast]);
 
@@ -166,7 +225,8 @@ export default function DslrBlurPage() {
         document.body.removeChild(link);
     };
 
-    const hasSelection = selectionRect && (selectionRect.w !== 0 || selectionRect.h !== 0);
+    const hasSelection = selectionRect && (selectionRect.w > 0 || selectionRect.h > 0);
+    const onResetSelection = () => setSelectionRect(null);
 
     return (
         <ToolLayout
@@ -175,24 +235,21 @@ export default function DslrBlurPage() {
             onImageUpload={handleImageUpload}
             isProcessing={isProcessing}
             showReset={!!originalImage}
-            processedImage={originalImage ? processedImage : undefined}
+            processedImage={processedImage || (originalImage ?? undefined)}
             hideUpload={!!originalImage}
             imageContainerChildren={
                 originalImage && (
                     <div className="relative w-full h-full flex items-center justify-center">
-                        <img src={processedImage || originalImage} alt="blur preview" className="max-w-full max-h-[70vh] object-contain" style={{ visibility: isDrawing ? 'visible' : 'visible' }} />
+                        <img src={processedImage || originalImage} alt="blur preview" className="max-w-full max-h-[70vh] object-contain" style={{opacity: isProcessing ? 0.5 : 1}} />
                         <canvas
-                            ref={selectionRef}
-                            className="absolute top-0 left-0 w-full h-full"
-                            width={selectionRef.current?.parentElement?.clientWidth}
-                            height={selectionRef.current?.parentElement?.clientHeight}
+                            ref={selectionCanvasRef}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                             onMouseDown={handleMouseDown}
                             onMouseMove={handleMouseMove}
                             onMouseUp={handleMouseUp}
                             onMouseLeave={handleMouseUp}
                             style={{ cursor: 'crosshair' }}
                         />
-                        <canvas ref={canvasRef} className="hidden" />
                     </div>
                 )
             }
@@ -200,9 +257,9 @@ export default function DslrBlurPage() {
             {originalImage ? (
                 <div className="space-y-6">
                     <div>
-                        <Label htmlFor="intensity" className="flex justify-between">
+                        <Label htmlFor="intensity" className="flex justify-between items-center mb-2">
                             <span>Blur Intensity</span>
-                            <span>{blurIntensity}</span>
+                            <span className="font-bold">{blurIntensity}</span>
                         </Label>
                         <Slider 
                             id="intensity" 
@@ -211,8 +268,13 @@ export default function DslrBlurPage() {
                             max={50} 
                             step={1} 
                         />
-                        <p className="text-xs text-muted-foreground mt-2">
-                           {hasSelection ? "Adjust intensity, then click Generate." : "Draw a selection on the image to define the focus area."}
+                         <p className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
+                           <span>{hasSelection ? "Adjust intensity, then click Generate." : "Draw on the image to select focus area."}</span>
+                           {hasSelection && (
+                                <Button onClick={onResetSelection} variant="ghost" size="icon" className="h-6 w-6">
+                                    <Eraser className="h-4 w-4" />
+                                </Button>
+                           )}
                         </p>
                     </div>
 
