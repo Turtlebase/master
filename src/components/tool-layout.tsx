@@ -12,9 +12,11 @@ interface ToolLayoutProps {
   description: string;
   children: React.ReactNode;
   onImageUpload: (image: string | null) => void;
-  processedImage: string | null;
+  processedImage?: string | null;
   isProcessing?: boolean;
   showReset?: boolean;
+  hideUpload?: boolean;
+  imageContainerChildren?: React.ReactNode;
 }
 
 export default function ToolLayout({ 
@@ -25,6 +27,8 @@ export default function ToolLayout({
     processedImage,
     isProcessing = false,
     showReset = false,
+    hideUpload = false,
+    imageContainerChildren,
 }: ToolLayoutProps) {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,43 +82,50 @@ export default function ToolLayout({
             <p className="mt-2 max-w-2xl mx-auto text-muted-foreground">{description}</p>
         </div>
 
-        {!showReset ? (
-            <Card 
-                onDragOver={onDragOver}
-                onDragLeave={onDragLeave}
-                onDrop={onDrop}
-                onClick={onButtonClick}
-                className={`relative flex flex-col items-center justify-center w-full p-12 lg:p-24 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${dragOver ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
-            >
-                <UploadCloud className="w-16 h-16 text-muted-foreground mb-4" />
-                <h2 className="text-xl font-semibold">Drag & drop your image here</h2>
-                <p className="text-muted-foreground">or click to browse</p>
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/png, image/jpeg, image/webp"
-                    className="hidden"
-                    onChange={(e) => handleFileChange(e.target.files)}
-                />
-            </Card>
-          ) : (
+        {hideUpload ? null : (
+            !showReset && (
+                 <Card 
+                    onDragOver={onDragOver}
+                    onDragLeave={onDragLeave}
+                    onDrop={onDrop}
+                    onClick={onButtonClick}
+                    className={`relative flex flex-col items-center justify-center w-full p-12 lg:p-24 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${dragOver ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
+                >
+                    <UploadCloud className="w-16 h-16 text-muted-foreground mb-4" />
+                    <h2 className="text-xl font-semibold">Drag & drop your image here</h2>
+                    <p className="text-muted-foreground">or click to browse</p>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/png, image/jpeg, image/webp"
+                        className="hidden"
+                        onChange={(e) => handleFileChange(e.target.files)}
+                    />
+                </Card>
+            )
+        )}
+          
+        {showReset && (
             <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 relative group bg-card p-4 rounded-lg shadow-sm min-h-[400px] flex items-center justify-center">
-                    {(isProcessing || !displayImage) && (
-                         <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center z-10 rounded-lg">
+                    {isProcessing && (
+                         <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center z-20 rounded-lg">
                             <Loader2 className="w-12 h-12 text-primary animate-spin" />
                             <p className="mt-4 text-lg">Processing...</p>
                         </div>
                     )}
-                    {displayImage ? (
-                        <Image
-                            src={displayImage}
-                            alt="Processed image"
-                            width={800}
-                            height={800}
-                            className={`rounded-lg object-contain w-full max-h-[70vh] transition-opacity duration-300 ${isProcessing ? 'opacity-20' : 'opacity-100'}`}
-                        />
-                    ): <Skeleton className="w-full h-full min-h-[400px] rounded-lg absolute inset-0" />}
+
+                    {imageContainerChildren ? imageContainerChildren : (
+                        displayImage ? (
+                            <Image
+                                src={displayImage}
+                                alt="Processed image"
+                                width={800}
+                                height={800}
+                                className={`rounded-lg object-contain w-full max-h-[70vh] transition-opacity duration-300 ${isProcessing ? 'opacity-20' : 'opacity-100'}`}
+                            />
+                        ): <Skeleton className="w-full h-full min-h-[400px] rounded-lg absolute inset-0" />
+                    )}
 
                     {showReset && (
                         <Button
@@ -127,7 +138,7 @@ export default function ToolLayout({
                         </Button>
                     )}
                 </div>
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-6 relative">
                     <Card>
                         <CardHeader>
                             <CardTitle className="font-headline text-2xl">Controls</CardTitle>
