@@ -5,7 +5,7 @@ import ToolLayout from "@/components/tool-layout";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
-import { Download, Loader2, Wand2, FileDigit } from 'lucide-react';
+import { Download, Loader2, FileDigit, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -27,20 +27,20 @@ export default function CompressPage() {
     const [originalSize, setOriginalSize] = useState<number | null>(null);
     const [compressedSize, setCompressedSize] = useState<number | null>(null);
 
-    const imageRef = useRef<HTMLImageElement>(null);
+    const imageRef = useRef<HTMLImageElement | null>(null);
+    const processTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     
     const handleImageUpload = (image: string | null, file: File | null) => {
         if (image && file) {
             setOriginalImage({ dataUrl: image, file });
             setOriginalSize(file.size);
-            setProcessedImage(null);
-            setCompressedSize(null);
+            setProcessedImage(image); // Initially show original
+            setCompressedSize(file.size);
             
             const img = new Image();
             img.src = image;
             img.onload = () => {
                 imageRef.current = img;
-                estimateCompressedSize(img, quality, file.type);
             }
         } else {
             setOriginalImage(null);
@@ -50,49 +50,22 @@ export default function CompressPage() {
             imageRef.current = null;
         }
     };
-
-    const estimateCompressedSize = useCallback(async (imageElement: HTMLImageElement, currentQuality: number, mimeType: string) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = imageElement.naturalWidth;
-        canvas.height = imageElement.naturalHeight;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        
-        ctx.drawImage(imageElement, 0, 0);
-
-        canvas.toBlob((blob) => {
-            if (blob) {
-                setCompressedSize(blob.size);
-            }
-        }, mimeType, currentQuality / 100);
-
-    }, []);
-
-    useEffect(() => {
-        if (originalImage && imageRef.current) {
-            estimateCompressedSize(imageRef.current, quality, originalImage.file.type);
-        }
-    }, [quality, originalImage, estimateCompressedSize]);
-
+    
     const processImage = useCallback(() => {
-        if (!originalImage || !imageRef.current) {
-            toast({
-                variant: "destructive",
-                title: "No Image",
-                description: "Please upload an image first.",
-            });
-            return;
-        }
+        if (!originalImage || !imageRef.current) return;
 
         setIsProcessing(true);
-        setProcessedImage(null);
+        // Debounce processing
+        if (processTimeoutRef.current) {
+            clearTimeout(processTimeoutRef.current);
+        }
 
-        setTimeout(() => {
+        processTimeoutRef.current = setTimeout(() => {
             try {
                 const img = imageRef.current!;
                 const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
                 const ctx = canvas.getContext('2d');
                 if (!ctx) throw new Error("Could not get canvas context");
 
@@ -103,8 +76,7 @@ export default function CompressPage() {
                 const dataUrl = canvas.toDataURL(mimeType, quality / 100);
                 setProcessedImage(dataUrl);
 
-                // For a more accurate final size
-                 canvas.toBlob((blob) => {
+                canvas.toBlob((blob) => {
                     if(blob) setCompressedSize(blob.size);
                 }, mimeType, quality / 100);
 
@@ -118,9 +90,16 @@ export default function CompressPage() {
             } finally {
                 setIsProcessing(false);
             }
-        }, 100);
+        }, 200); // 200ms debounce
 
     }, [originalImage, quality, toast]);
+
+
+    useEffect(() => {
+        if (originalImage) {
+            processImage();
+        }
+    }, [quality, originalImage, processImage]);
 
     const handleDownload = () => {
         if (!processedImage) return;
@@ -141,7 +120,7 @@ export default function CompressPage() {
             title="Image Compressor"
             description="Reduce image file size with an interactive quality preview."
             onImageUpload={(img, file) => handleImageUpload(img, file)}
-            processedImage={processedImage || originalImage?.dataUrl}
+            processedImage={processedImage}
             isProcessing={isProcessing}
             showReset={hasImage}
             hideUpload={hasImage}
@@ -186,11 +165,7 @@ export default function CompressPage() {
                     </Card>
 
                     <div className="flex flex-col gap-4 !mt-8">
-                        <Button onClick={processImage} disabled={isProcessing}>
-                            {isProcessing ? <Loader2 className="animate-spin" /> : <Wand2 />}
-                            Compress Image
-                        </Button>
-                        <Button onClick={handleDownload} disabled={isProcessing || !processedImage} variant="secondary">
+                        <Button onClick={handleDownload} disabled={isProcessing || !processedImage || processedImage === originalImage?.dataUrl} variant="secondary">
                             <Download />
                             Download Image
                         </Button>

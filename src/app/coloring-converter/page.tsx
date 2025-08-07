@@ -25,7 +25,14 @@ export default function ColoringConverterPage() {
     const [isCvReady, setIsCvReady] = useState(false);
 
     useEffect(() => {
+        const scriptId = 'opencv-script';
+        if (document.getElementById(scriptId)) {
+            setIsCvReady(!!window.cv);
+            return;
+        };
+
         const script = document.createElement('script');
+        script.id = scriptId;
         script.src = 'https://docs.opencv.org/4.9.0/opencv.js';
         script.async = true;
         script.onload = () => {
@@ -40,9 +47,6 @@ export default function ColoringConverterPage() {
         };
         document.body.appendChild(script);
 
-        return () => {
-            document.body.removeChild(script);
-        }
     }, []);
 
 
@@ -131,13 +135,19 @@ export default function ColoringConverterPage() {
             processedImage={processedImage}
             isProcessing={isProcessing}
             showReset={!!originalImage}
+            hideUpload={!isCvReady || !!originalImage}
         >
             <div className="space-y-6">
-                 {!originalImage && !isCvReady && (
-                    <div className="space-y-4">
-                        <Skeleton className="h-4 w-[150px]" />
-                        <Skeleton className="h-8 w-full" />
-                         <p className="text-xs text-muted-foreground mt-2">Initializing engine...</p>
+                {!originalImage && (
+                    <div className="text-center">
+                        {!isCvReady ? (
+                             <div className="flex flex-col items-center gap-4">
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                <p className="text-sm text-muted-foreground">Initializing engine...</p>
+                            </div>
+                        ) : (
+                           <p className="text-sm text-muted-foreground">Upload an image to get started.</p>
+                        )}
                     </div>
                 )}
                 {originalImage && (
@@ -179,14 +189,14 @@ export default function ColoringConverterPage() {
                         <div className="flex flex-col gap-4 !mt-8">
                             <Button onClick={processImage} disabled={isProcessing || !isCvReady}>
                                 {isProcessing ? (
-                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                    <Loader2 className="animate-spin" />
                                 ) : (
-                                    <Wand2 className="mr-2 h-5 w-5" />
+                                    <Wand2 />
                                 )}
                                 Generate Page
                             </Button>
-                            <Button onClick={handleDownload} disabled={isProcessing} variant="secondary">
-                                <Download className="mr-2 h-5 w-5" />
+                            <Button onClick={handleDownload} disabled={isProcessing || !processedImage || processedImage === originalImage} variant="secondary">
+                                <Download/>
                                 Download Page
                             </Button>
                         </div>

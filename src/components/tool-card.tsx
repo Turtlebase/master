@@ -1,18 +1,17 @@
 import Link from 'next/link';
 import * as Icons from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 
 interface ToolCardProps {
   name: string;
   description: string;
   href: string;
-  icon: keyof typeof Icons | React.ComponentType<any>;
+  icon: keyof typeof Icons;
 }
 
 export function ToolCard({ name, description, href, icon }: ToolCardProps) {
-  const LucideIcon = typeof icon === 'string' ? Icons[icon as keyof typeof Icons] as React.ComponentType<React.ComponentProps<typeof Icons.Icon>> : icon;
+  const LucideIcon = Icons[icon];
 
   return (
     <Link href={href} className="group block h-full">

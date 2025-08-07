@@ -1,6 +1,5 @@
 import { ToolCard } from '@/components/tool-card';
 import { Button } from '@/components/ui/button';
-import type { LucideProps } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import Link from 'next/link';
 
@@ -8,7 +7,7 @@ type Tool = {
   name: string;
   description: string;
   href: string;
-  icon: keyof typeof Icons | React.ComponentType<any>;
+  icon: keyof typeof Icons;
 }
 
 const tools: Tool[] = [

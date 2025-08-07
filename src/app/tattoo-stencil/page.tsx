@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Skeleton } from '@/components/ui/skeleton';
 
 declare global {
     var cv: any;
@@ -26,7 +25,14 @@ export default function TattooStencilPage() {
     const [isCvReady, setIsCvReady] = useState(false);
 
     useEffect(() => {
+        const scriptId = 'opencv-script';
+        if (document.getElementById(scriptId)) {
+            setIsCvReady(!!window.cv);
+            return;
+        };
+
         const script = document.createElement('script');
+        script.id = scriptId;
         script.src = 'https://docs.opencv.org/4.9.0/opencv.js';
         script.async = true;
         script.onload = () => {
@@ -41,9 +47,6 @@ export default function TattooStencilPage() {
         };
         document.body.appendChild(script);
 
-        return () => {
-            document.body.removeChild(script);
-        }
     }, []);
 
     const processImage = useCallback(() => {
@@ -131,11 +134,19 @@ export default function TattooStencilPage() {
             processedImage={processedImage}
             isProcessing={isProcessing}
             showReset={!!originalImage}
+            hideUpload={!isCvReady || !!originalImage}
         >
             <div className="space-y-6">
                 {!originalImage && (
-                    <div className="space-y-4">
-                       {!isCvReady && <p className="text-xs text-muted-foreground mt-2">Initializing stencil engine...</p>}
+                     <div className="text-center">
+                        {!isCvReady ? (
+                             <div className="flex flex-col items-center gap-4">
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                <p className="text-sm text-muted-foreground">Initializing engine...</p>
+                            </div>
+                        ) : (
+                           <p className="text-sm text-muted-foreground">Upload an image to get started.</p>
+                        )}
                     </div>
                 )}
                 
@@ -192,14 +203,14 @@ export default function TattooStencilPage() {
                         <div className="flex flex-col gap-4 !mt-8">
                             <Button onClick={processImage} disabled={isProcessing || !isCvReady}>
                                 {isProcessing ? (
-                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                    <Loader2 className="animate-spin" />
                                 ) : (
-                                    <Wand2 className="mr-2 h-5 w-5" />
+                                    <Wand2 />
                                 )}
                                 Generate Stencil
                             </Button>
-                            <Button onClick={handleDownload} disabled={isProcessing} variant="secondary">
-                                <Download className="mr-2 h-5 w-5" />
+                            <Button onClick={handleDownload} disabled={isProcessing || !processedImage || processedImage === originalImage} variant="secondary">
+                                <Download />
                                 Download Stencil
                             </Button>
                         </div>

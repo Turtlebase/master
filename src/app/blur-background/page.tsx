@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -17,8 +17,7 @@ export default function DslrBlurPage() {
     const [blurIntensity, setBlurIntensity] = useState(10);
     
     const imageRef = useRef<HTMLImageElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const selectionRef = useRef<HTMLDivElement>(null);
+    const canvasContainerRef = useRef<HTMLDivElement>(null);
 
     const [isSelecting, setIsSelecting] = useState(false);
     const [startPoint, setStartPoint] = useState<{x: number, y: number} | null>(null);
@@ -27,7 +26,7 @@ export default function DslrBlurPage() {
 
     const handleImageUpload = (img: string | null) => {
         setOriginalImage(img);
-        setProcessedImage(img); // Show original image in preview
+        setProcessedImage(img); 
         setSelectionRect(null);
         if (img) {
             const image = new Image();
@@ -69,7 +68,7 @@ export default function DslrBlurPage() {
     };
 
     const processImage = useCallback(() => {
-        if (!originalImage || !imageRef.current || !selectionRect) {
+        if (!originalImage || !imageRef.current || !selectionRect || !canvasContainerRef.current) {
             toast({
                 variant: "destructive",
                 title: "Selection required",
@@ -79,75 +78,47 @@ export default function DslrBlurPage() {
         }
 
         setIsProcessing(true);
-        setProcessedImage(null);
 
         setTimeout(() => {
-            const img = imageRef.current!;
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-             if (!ctx) {
+            try {
+                const img = imageRef.current!;
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    throw new Error("Could not get canvas context");
+                };
+                
+                const displayRect = canvasContainerRef.current!.getBoundingClientRect();
+                const scaleX = img.naturalWidth / displayRect.width;
+                const scaleY = img.naturalHeight / displayRect.height;
+    
+                const scaledRect = {
+                    x: selectionRect.x * scaleX,
+                    y: selectionRect.y * scaleY,
+                    w: selectionRect.w * scaleX,
+                    h: selectionRect.h * scaleY,
+                };
+    
+                // Draw blurred image
+                ctx.filter = `blur(${blurIntensity}px)`;
+                ctx.drawImage(img, 0, 0);
+                
+                // Draw sharp part on top
+                ctx.filter = 'none';
+                ctx.drawImage(img, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h);
+    
+                setProcessedImage(canvas.toDataURL('image/png'));
+            } catch (error: any) {
+                toast({
+                    variant: "destructive",
+                    title: "Processing Error",
+                    description: error.message || "An unexpected error occurred.",
+                });
+            } finally {
                 setIsProcessing(false);
-                return;
-             };
-            
-            // The selection rectangle is based on the display size, so we need to scale it to the original image size.
-            const displaySize = canvasRef.current!.getBoundingClientRect();
-            const scaleX = img.width / displaySize.width;
-            const scaleY = img.height / displaySize.height;
-
-            const scaledRect = {
-                x: selectionRect.x * scaleX,
-                y: selectionRect.y * scaleY,
-                w: selectionRect.w * scaleX,
-                h: selectionRect.h * scaleY,
-            };
-
-            // 1. Draw the full image first
-            ctx.drawImage(img, 0, 0);
-
-            // 2. Create a blurred version on top
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.filter = `blur(${blurIntensity}px)`;
-            ctx.drawImage(img, 0, 0);
-
-            // 3. Feather the edges of the selection
-            const feather = Math.min(scaledRect.w, scaledRect.h) * 0.15;
-
-            // 4. Create a mask for the sharp area
-            const maskCanvas = document.createElement('canvas');
-            maskCanvas.width = img.width;
-            maskCanvas.height = img.height;
-            const maskCtx = maskCanvas.getContext('2d')!;
-
-            // Draw the sharp area onto the mask
-            maskCtx.drawImage(img, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h);
-            
-            // Create a feathered gradient for the mask
-            maskCtx.globalCompositeOperation = 'destination-in';
-            const gradient = maskCtx.createLinearGradient(0, 0, 0, maskCanvas.height);
-            // This part is complex, for a simple feathered rect:
-            maskCtx.filter = `blur(${feather}px)`;
-            maskCtx.fillRect(scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h);
-
-
-            // Draw the sharp, feathered part on top of the blurred image
-            ctx.globalCompositeOperation = 'destination-over'; //
-            ctx.filter = 'none';
-            ctx.drawImage(maskCanvas, 0, 0);
-
-            // This is a simplified version. A more robust implementation might involve more steps.
-            // For now, let's try a different composition approach
-            ctx.clearRect(0,0, canvas.width, canvas.height);
-            ctx.filter = `blur(${blurIntensity}px)`;
-            ctx.drawImage(img, 0,0);
-            ctx.filter = 'none';
-            ctx.drawImage(img, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h);
-
-
-            setProcessedImage(canvas.toDataURL('image/png'));
-            setIsProcessing(false);
+            }
         }, 100);
 
     }, [originalImage, selectionRect, blurIntensity, toast]);
@@ -181,7 +152,7 @@ export default function DslrBlurPage() {
             imageContainerChildren={
                 originalImage && (
                     <div 
-                        ref={canvasRef}
+                        ref={canvasContainerRef}
                         className="relative w-full h-full cursor-crosshair"
                         onMouseDown={handleMouseDown}
                         onMouseMove={handleMouseMove}
@@ -190,7 +161,6 @@ export default function DslrBlurPage() {
                     >
                          {selectionRect && (
                             <div
-                                ref={selectionRef}
                                 className="absolute border-2 border-dashed border-primary bg-primary/20 pointer-events-none"
                                 style={{
                                     left: `${selectionRect.x}px`,
