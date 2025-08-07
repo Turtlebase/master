@@ -8,11 +8,11 @@ interface ToolCardProps {
   name: string;
   description: string;
   href: string;
-  icon: keyof typeof Icons;
+  icon: keyof typeof Icons | React.ComponentType<any>;
 }
 
 export function ToolCard({ name, description, href, icon }: ToolCardProps) {
-  const LucideIcon = Icons[icon] as React.ComponentType<React.ComponentProps<typeof Icons.Icon>>;
+  const LucideIcon = typeof icon === 'string' ? Icons[icon as keyof typeof Icons] as React.ComponentType<React.ComponentProps<typeof Icons.Icon>> : icon;
 
   return (
     <Link href={href} className="group">

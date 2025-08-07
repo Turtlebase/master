@@ -3,16 +3,17 @@ import { Button } from '@/components/ui/button';
 import type { LucideProps } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import Link from 'next/link';
+import { BrainCircuit } from 'lucide-react';
 
 type Tool = {
   name: string;
   description: string;
   href: string;
-  icon: keyof typeof Icons;
+  icon: keyof typeof Icons | React.ComponentType<any>;
 }
 
 const tools: Tool[] = [
-  { name: 'AI Background Remover', description: 'Automatically remove the background from any image with a single click.', href: '/background-remover', icon: 'Scissors' },
+  { name: 'AI Background Remover', description: 'Automatically remove the background from any image with a single click.', href: '/background-remover', icon: BrainCircuit },
   { name: 'Tattoo Stencil Maker', description: 'Convert photos into detailed black and white stencils, perfect for tattoos.', href: '/tattoo-stencil', icon: 'Scissors' },
   { name: 'Coloring Book Converter', description: 'Turn any image into a line-art sketch, ready to be colored in.', href: '/coloring-converter', icon: 'Palette' },
   { name: 'Passport Photo Tool', description: 'Crop and resize photos for any official ID with standard presets.', href: '/passport-photo', icon: 'UserSquare' },
