@@ -40,17 +40,30 @@ const removeBackgroundFlow = ai.defineFlow(
   },
   async (input) => {
     const { media } = await ai.generate({
-      model: "googleai/gemini-2.0-flash-preview-image-generation",
-      prompt: [
-        { media: { url: input.image } },
-        {
-          text: "Remove the background from this image. The new background should be transparent.",
+      model: "googleai/gemini-2.0-flash-preview-generative-edit",
+      prompt: {
+        toolRequest: {
+          tools: [
+            {
+              imageEditingTool: {
+                edit: "background_removal",
+                options: {
+                  format: "png",
+                  mode: "foreground",
+                },
+              },
+            },
+          ],
+          context: {
+            image: { url: input.image },
+          },
         },
-      ],
+      },
       config: {
         responseModalities: ["TEXT", "IMAGE"],
       },
     });
+
     return {
       imageWithTransparentBg: media.url,
     };
