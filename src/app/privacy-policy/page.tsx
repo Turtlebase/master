@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="container mx-auto px-4 py-12 md:py-16">
+    <div className="container mx-auto px-4 py-12 md:py-16 animate-fade-in-up">
       <div className="max-w-4xl mx-auto prose prose-invert prose-headings:font-headline prose-headings:text-primary prose-a:text-primary">
         <h1>Privacy Policy</h1>
         <p>Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
@@ -49,7 +49,7 @@ export default function PrivacyPolicyPage() {
 
         <h2>5. Contact Us</h2>
         <p>
-          If you have any questions about this Privacy Policy, please contact us. (Note: A contact method would be added here in a real application).
+          If you have any questions about this Privacy Policy, please see our <Link href="/contact">Contact Page</Link>.
         </p>
       </div>
     </div>

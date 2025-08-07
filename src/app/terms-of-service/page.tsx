@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function TermsOfServicePage() {
   return (
-    <div className="container mx-auto px-4 py-12 md:py-16">
+    <div className="container mx-auto px-4 py-12 md:py-16 animate-fade-in-up">
        <div className="max-w-4xl mx-auto prose prose-invert prose-headings:font-headline prose-headings:text-primary prose-a:text-primary">
         <h1>Terms of Service</h1>
         <p>Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
@@ -47,6 +48,10 @@ export default function TermsOfServicePage() {
         <h2>6. Changes to Terms</h2>
         <p>
           We reserve the right to modify these Terms at any time. We will post the revised Terms on this page. By continuing to use the Services after the changes become effective, you agree to the revised Terms.
+        </p>
+         <h2>7. Contact</h2>
+        <p>
+          If you have any questions about these Terms, please see our <Link href="/contact">Contact Page</Link>.
         </p>
       </div>
     </div>
