@@ -7,120 +7,76 @@ import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
 import { Wand2, Loader2, Download, Eraser } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { detectSubject } from '@/ai/flows/detect-subject-flow';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Terminal } from 'lucide-react';
 
 export default function DslrBlurPage() {
     const { toast } = useToast();
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [processedImage, setProcessedImage] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isDetecting, setIsDetecting] = useState(false);
     
     const [blurIntensity, setBlurIntensity] = useState(10);
     
     const imageRef = useRef<HTMLImageElement>(null);
-    const selectionCanvasRef = useRef<HTMLCanvasElement>(null);
-    const [isDrawing, setIsDrawing] = useState(false);
     const [selectionRect, setSelectionRect] = useState<{ x: number, y: number, w: number, h: number} | null>(null);
-    const [startPoint, setStartPoint] = useState<{x: number, y: number} | null>(null);
 
-    const handleImageUpload = (image: string | null) => {
+    const handleImageUpload = useCallback(async (image: string | null) => {
         setOriginalImage(image);
         setProcessedImage(null);
         setSelectionRect(null);
-        const img = new Image();
-        img.src = image || '';
-        img.onload = () => {
-            imageRef.current = img;
-        }
-    }
 
-    const getMousePos = (canvas: HTMLCanvasElement, evt: React.MouseEvent) => {
-        const rect = canvas.getBoundingClientRect();
-        return {
-            x: evt.clientX - rect.left,
-            y: evt.clientY - rect.top
-        };
-    }
+        if (image) {
+            const img = new Image();
+            img.src = image;
+            img.onload = () => {
+                imageRef.current = img;
+            }
 
-    const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!originalImage) return;
-        const pos = getMousePos(e.currentTarget, e);
-        setStartPoint(pos);
-        setIsDrawing(true);
-    };
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!isDrawing || !startPoint) return;
-        const pos = getMousePos(e.currentTarget, e);
-        setSelectionRect({ 
-            x: Math.min(pos.x, startPoint.x), 
-            y: Math.min(pos.y, startPoint.y), 
-            w: Math.abs(pos.x - startPoint.x), 
-            h: Math.abs(pos.y - startPoint.y) 
-        });
-    };
-
-    const handleMouseUp = () => {
-        setIsDrawing(false);
-        setStartPoint(null);
-    };
-
-    const drawSelection = useCallback(() => {
-        const canvas = selectionCanvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        if (selectionRect && (selectionRect.w > 0 || selectionRect.h > 0)) {
-            ctx.strokeStyle = 'rgba(0, 255, 255, 0.8)';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([6, 6]);
-            ctx.strokeRect(selectionRect.x, selectionRect.y, selectionRect.w, selectionRect.h);
-            ctx.setLineDash([]);
-            ctx.fillStyle = 'rgba(0, 255, 255, 0.1)';
-            ctx.fillRect(selectionRect.x, selectionRect.y, selectionRect.w, selectionRect.h);
-        }
-    }, [selectionRect]);
-    
-    useEffect(() => {
-        const canvas = selectionCanvasRef.current;
-        const image = imageRef.current;
-        if (canvas && image) {
-            const parent = canvas.parentElement;
-            if (parent) {
-                const { clientWidth, clientHeight } = parent;
-                const imageAspectRatio = image.width / image.height;
-                const parentAspectRatio = clientWidth / clientHeight;
-
-                let renderWidth, renderHeight;
-
-                if (imageAspectRatio > parentAspectRatio) {
-                    renderWidth = clientWidth;
-                    renderHeight = clientWidth / imageAspectRatio;
+            setIsDetecting(true);
+            try {
+                const result = await detectSubject({ photoDataUri: image });
+                if (result.box) {
+                    // The AI returns normalized coordinates (0-1), so we scale them to the image size.
+                    setSelectionRect({
+                        x: result.box.x1 * img.width,
+                        y: result.box.y1 * img.height,
+                        w: (result.box.x2 - result.box.x1) * img.width,
+                        h: (result.box.y2 - result.box.y1) * img.height,
+                    });
+                     toast({
+                        title: "Subject Detected",
+                        description: "The main subject has been automatically selected. Adjust the blur and click Generate.",
+                    });
                 } else {
-                    renderHeight = clientHeight;
-                    renderWidth = clientHeight * imageAspectRatio;
+                     toast({
+                        variant: "destructive",
+                        title: "Detection Failed",
+                        description: "The AI could not detect a main subject. Please try a different image.",
+                    });
                 }
-                canvas.style.width = `${renderWidth}px`;
-                canvas.style.height = `${renderHeight}px`;
-                canvas.width = renderWidth;
-                canvas.height = renderHeight;
-                drawSelection();
+            } catch (e: any) {
+                 toast({
+                    variant: "destructive",
+                    title: "AI Error",
+                    description: "An error occurred while detecting the subject.",
+                });
+                console.error(e);
+            } finally {
+                setIsDetecting(false);
             }
         }
-    }, [originalImage, drawSelection]);
+    }, [toast]);
 
-    useEffect(() => {
-        drawSelection();
-    }, [selectionRect, drawSelection]);
 
     const processImage = useCallback(() => {
         if (!originalImage || !imageRef.current || !selectionRect) {
             toast({
                 variant: "destructive",
                 title: "Selection required",
-                description: "Please draw a rectangle on the image to select the area to keep in focus.",
+                description: "Please wait for the AI to detect a subject before generating.",
             });
             return;
         }
@@ -138,18 +94,6 @@ export default function DslrBlurPage() {
                 setIsProcessing(false);
                 return;
              };
-            
-            // Map selection from rendered size to original image size
-            const selectionCanvas = selectionCanvasRef.current!;
-            const scaleX = img.width / selectionCanvas.width;
-            const scaleY = img.height / selectionCanvas.height;
-
-            const originalSelection = {
-                x: selectionRect.x * scaleX,
-                y: selectionRect.y * scaleY,
-                w: selectionRect.w * scaleX,
-                h: selectionRect.h * scaleY,
-            }
 
             // Draw blurred background
             ctx.filter = `blur(${blurIntensity}px)`;
@@ -164,50 +108,31 @@ export default function DslrBlurPage() {
             maskCanvas.height = img.height;
             const maskCtx = maskCanvas.getContext('2d')!;
             
-            const feather = Math.min(originalSelection.w, originalSelection.h) * 0.2;
-            const gradient = maskCtx.createLinearGradient(0, originalSelection.y, 0, originalSelection.y + feather);
-            gradient.addColorStop(0, 'rgba(0,0,0,0)');
-            gradient.addColorStop(1, 'rgba(0,0,0,1)');
+            const feather = Math.min(selectionRect.w, selectionRect.h) * 0.2;
 
             maskCtx.fillStyle = 'black'; // Opaque
-            maskCtx.fillRect(
-                originalSelection.x + feather, 
-                originalSelection.y + feather, 
-                originalSelection.w - feather * 2, 
-                originalSelection.h - feather * 2
-            );
+            const innerX = selectionRect.x + feather;
+            const innerY = selectionRect.y + feather;
+            const innerW = selectionRect.w - feather * 2;
+            const innerH = selectionRect.h - feather * 2;
+            maskCtx.fillRect(innerX, innerY, innerW, innerH);
 
-            // Create feathered edges
-            const outerRect = new Path2D();
-            outerRect.rect(0, 0, img.width, img.height);
-            const innerRect = new Path2D();
-            innerRect.rect(
-                originalSelection.x, 
-                originalSelection.y, 
-                originalSelection.w, 
-                originalSelection.h
-            );
-
-            maskCtx.save();
-            maskCtx.clip(outerRect);
-            maskCtx.clip(innerRect, 'evenodd');
-            
             // Apply blur to the mask itself to create the feather
+            maskCtx.save();
+            maskCtx.globalCompositeOperation = 'destination-out';
+            const outerRectPath = new Path2D();
+            outerRectPath.rect(selectionRect.x, selectionRect.y, selectionRect.w, selectionRect.h);
+            maskCtx.clip(outerRectPath);
             maskCtx.filter = `blur(${feather}px)`;
             maskCtx.fillStyle = "black";
-            maskCtx.fillRect(
-                originalSelection.x,
-                originalSelection.y,
-                originalSelection.w,
-                originalSelection.h,
-            );
+            maskCtx.fillRect(0, 0, img.width, img.height);
             maskCtx.restore();
 
-            // Use mask to composite sharp image onto blurred image
+            // Composite original image using the feathered mask
             ctx.globalCompositeOperation = 'destination-in';
             ctx.drawImage(maskCanvas, 0, 0);
             ctx.globalCompositeOperation = 'source-over';
-            ctx.drawImage(img, 0, 0);
+            ctx.drawImage(img, 0, 0, img.width, img.height);
              
             setProcessedImage(canvas.toDataURL('image/png'));
             setIsProcessing(false);
@@ -225,37 +150,28 @@ export default function DslrBlurPage() {
         document.body.removeChild(link);
     };
 
-    const hasSelection = selectionRect && (selectionRect.w > 0 || selectionRect.h > 0);
-    const onResetSelection = () => setSelectionRect(null);
+    const hasSelection = !!selectionRect;
 
     return (
         <ToolLayout
             title="DSLR Blur"
             description="Apply a beautiful, realistic background blur to your photos to make subjects pop."
             onImageUpload={handleImageUpload}
-            isProcessing={isProcessing}
+            isProcessing={isProcessing || isDetecting}
             showReset={!!originalImage}
             processedImage={processedImage || (originalImage ?? undefined)}
             hideUpload={!!originalImage}
-            imageContainerChildren={
-                originalImage && (
-                    <div className="relative w-full h-full flex items-center justify-center">
-                        <img src={processedImage || originalImage} alt="blur preview" className="max-w-full max-h-[70vh] object-contain" style={{opacity: isProcessing ? 0.5 : 1}} />
-                        <canvas
-                            ref={selectionCanvasRef}
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                            onMouseDown={handleMouseDown}
-                            onMouseMove={handleMouseMove}
-                            onMouseUp={handleMouseUp}
-                            onMouseLeave={handleMouseUp}
-                            style={{ cursor: 'crosshair' }}
-                        />
-                    </div>
-                )
-            }
         >
             {originalImage ? (
                 <div className="space-y-6">
+                     <Alert>
+                      <Terminal className="h-4 w-4" />
+                      <AlertTitle>AI Subject Detection</AlertTitle>
+                      <AlertDescription>
+                        {isDetecting ? "Finding the main subject in your image..." : (hasSelection ? "Subject detected! Adjust blur and generate." : "Upload an image to start.")}
+                      </AlertDescription>
+                    </Alert>
+
                     <div>
                         <Label htmlFor="intensity" className="flex justify-between items-center mb-2">
                             <span>Blur Intensity</span>
@@ -269,17 +185,12 @@ export default function DslrBlurPage() {
                             step={1} 
                         />
                          <p className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
-                           <span>{hasSelection ? "Adjust intensity, then click Generate." : "Draw on the image to select focus area."}</span>
-                           {hasSelection && (
-                                <Button onClick={onResetSelection} variant="ghost" size="icon" className="h-6 w-6">
-                                    <Eraser className="h-4 w-4" />
-                                </Button>
-                           )}
+                           Adjust intensity, then click Generate.
                         </p>
                     </div>
 
                     <div className="flex flex-col gap-4 !mt-8">
-                        <Button onClick={processImage} disabled={isProcessing || !hasSelection}>
+                        <Button onClick={processImage} disabled={isProcessing || isDetecting || !hasSelection}>
                             {isProcessing ? <Loader2 className="animate-spin" /> : <Wand2 />}
                             Generate Blur
                         </Button>
