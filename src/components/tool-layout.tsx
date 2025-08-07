@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { UploadCloud, X, Download } from 'lucide-react';
 import Image from 'next/image';
-import AiSuggestions from './ai-suggestions';
 
 interface ToolLayoutProps {
   title: string;
@@ -107,15 +106,6 @@ export default function ToolLayout({ title, description, children }: ToolLayoutP
                         </CardHeader>
                         <CardContent>
                             {typeof children === 'function' ? children(image) : children}
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="font-headline text-2xl">AI Assistant</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                             <AiSuggestions imageDataUri={image} />
                         </CardContent>
                     </Card>
 
