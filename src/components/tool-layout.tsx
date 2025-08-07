@@ -54,6 +54,10 @@ export default function ToolLayout({ title, description, children }: ToolLayoutP
     setImage(null);
   }
 
+  const renderChildren = () => {
+    return children(image);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="max-w-6xl mx-auto">
@@ -106,7 +110,7 @@ export default function ToolLayout({ title, description, children }: ToolLayoutP
                             <CardTitle className="font-headline text-2xl">Controls</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {children(image)}
+                            {renderChildren()}
                         </CardContent>
                     </Card>
 
