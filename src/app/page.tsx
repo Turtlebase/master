@@ -18,7 +18,7 @@ const tools: Tool[] = [
   { name: 'DSLR Blur', description: 'Apply a realistic background blur to your photos to make subjects pop.', href: '/blur-background', icon: 'Droplets' },
   { name: 'Image Resizer', description: 'Quickly resize any image to your specified dimensions.', href: '/resize', icon: 'StretchHorizontal' },
   { name: 'Image Cropper', description: 'Crop images with precision using presets, rotation, and zoom.', href: '/crop', icon: 'Crop' },
-  { name: 'Image Compressor', description: 'Reduce the file size of your images without sacrificing quality.', href: '/compress', icon: 'Minimize2' },
+  { name: 'Image Compressor', description: 'Reduce image file size with a quality preview.', href: '/compress', icon: 'Minimize2' },
   { name: 'Image Filters', description: 'Apply classic filters like Grayscale and Sepia to your photos.', href: '/filters', icon: 'Wand2' }
 ];
 

@@ -11,7 +11,7 @@ interface ToolLayoutProps {
   title: string;
   description: string;
   children: React.ReactNode;
-  onImageUpload: (image: string | null) => void;
+  onImageUpload: (image: string | null, file: File | null) => void;
   processedImage?: string | null;
   isProcessing?: boolean;
   showReset?: boolean;
@@ -35,13 +35,14 @@ export default function ToolLayout({
 
   const handleFileChange = (files: FileList | null) => {
     if (files && files[0]) {
+      const file = files[0];
       const reader = new FileReader();
       reader.onload = (e) => {
         if(e.target?.result) {
-            onImageUpload(e.target.result as string);
+            onImageUpload(e.target.result as string, file);
         }
       };
-      reader.readAsDataURL(files[0]);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -66,7 +67,7 @@ export default function ToolLayout({
   };
 
   const onReset = () => {
-    onImageUpload(null);
+    onImageUpload(null, null);
     if(fileInputRef.current) {
         fileInputRef.current.value = "";
     }
