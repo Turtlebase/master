@@ -18,12 +18,58 @@ const fontHeadline = Poppins({
   variable: "--font-headline",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://imagecon.pro';
+
 export const metadata: Metadata = {
-  title: "ImageCon.pro - The Ultimate Free Image Toolbox",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "ImageCon.pro - The Ultimate Free Image Toolbox",
+    template: "%s | ImageCon.pro",
+  },
   description:
-    "Edit, sketch, resize, crop, and enhance your images – 100% free, no signup, no watermark.",
-  keywords: "image editor, free tools, image compressor, image resizer, background blur, tattoo stencil, coloring page, passport photo, image crop",
+    "Edit, sketch, resize, crop, and enhance your images with our suite of free, professional-grade online tools. No signup, no watermarks, 100% free.",
+  keywords: ["image editor", "free tools", "image compressor", "image resizer", "background blur", "tattoo stencil", "coloring page", "passport photo", "image crop", "online image editor"],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    title: "ImageCon.pro - The Ultimate Free Image Toolbox",
+    description: "The complete suite of free, professional-grade image editing tools. Edit, resize, crop, and much more.",
+    url: siteUrl,
+    siteName: "ImageCon.pro",
+    images: [
+      {
+        url: `${siteUrl}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: "ImageCon.pro - Free Image Toolbox",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ImageCon.pro - The Ultimate Free Image Toolbox",
+    description: "The complete suite of free, professional-grade image editing tools. Edit, resize, crop, and much more.",
+    images: [`${siteUrl}/og-image.png`],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: `${siteUrl}/site.webmanifest`,
 };
+
 
 export default function RootLayout({
   children,
@@ -32,6 +78,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+       <head />
       <body
         className={cn(
           "font-body antialiased",

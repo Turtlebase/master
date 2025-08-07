@@ -17,7 +17,7 @@ const tools: Tool[] = [
   { name: 'DSLR Blur', description: 'Apply a realistic background blur to your photos to make subjects pop.', href: '/blur-background', icon: 'Droplets' },
   { name: 'Image Resizer', description: 'Quickly resize any image to your specified dimensions.', href: '/resize', icon: 'StretchHorizontal' },
   { name: 'Image Cropper', description: 'Crop images with precision using presets, rotation, and zoom.', href: '/crop', icon: 'Crop' },
-  { name: 'Image Compressor', description: 'Reduce image file size with a quality preview.', href: '/compress', icon: 'Minimize2' },
+  { name: 'Image Compressor', description: 'Reduce image file size with an interactive quality preview.', href: '/compress', icon: 'Minimize2' },
   { name: 'Image Filters', description: 'Apply classic filters like Grayscale and Sepia to your photos.', href: '/filters', icon: 'Wand2' }
 ];
 
@@ -49,6 +49,13 @@ export default function Home() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="container mx-auto px-4 py-16 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4">Why Choose ImageCon.pro?</h2>
+        <p className="max-w-3xl mx-auto text-muted-foreground text-lg">
+          We believe powerful image editing should be accessible to everyone. All our tools are free, work directly in your browser for speed and privacy, and are designed to be simple enough for anyone to use.
+        </p>
       </section>
     </div>
   );

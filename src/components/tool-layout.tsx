@@ -60,7 +60,7 @@ export default function ToolLayout({
     e.preventDefault();
     setDragOver(false);
     handleFileChange(e.dataTransfer.files);
-  }, []);
+  }, [handleFileChange]);
 
   const onButtonClick = () => {
     fileInputRef.current?.click();
@@ -108,7 +108,7 @@ export default function ToolLayout({
           
         {showReset && (
             <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-2 relative group bg-card/50 p-4 rounded-xl shadow-lg border border-border/50 min-h-[400px] flex items-center justify-center">
+                <div className="lg:col-span-2 relative group bg-card/50 p-4 rounded-xl shadow-lg border border-border/50 flex items-center justify-center min-h-[300px] md:min-h-[400px] lg:min-h-[500px]">
                     {isProcessing && (
                          <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center z-20 rounded-lg">
                             <Loader2 className="w-12 h-12 text-primary animate-spin" />
@@ -125,7 +125,7 @@ export default function ToolLayout({
                                 height={800}
                                 className={`rounded-lg object-contain w-full max-h-[70vh] transition-opacity duration-300 ${isProcessing ? 'opacity-20' : 'opacity-100'}`}
                             />
-                        ): <Skeleton className="w-full h-full min-h-[400px] rounded-lg absolute inset-0" />
+                        ): <Skeleton className="w-full h-full min-h-[400px] rounded-lg" />
                     )}
 
                     {showReset && (
