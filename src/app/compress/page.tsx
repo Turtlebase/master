@@ -31,6 +31,9 @@ export default function CompressPage() {
     const processTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     
     const handleImageUpload = (image: string | null, file: File | null) => {
+        if (processTimeoutRef.current) {
+            clearTimeout(processTimeoutRef.current);
+        }
         if (image && file) {
             setOriginalImage({ dataUrl: image, file });
             setOriginalSize(file.size);

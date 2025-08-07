@@ -60,7 +60,7 @@ export default function ToolLayout({
     e.preventDefault();
     setDragOver(false);
     handleFileChange(e.dataTransfer.files);
-  }, [handleFileChange]);
+  }, []);
 
   const onButtonClick = () => {
     fileInputRef.current?.click();
@@ -92,7 +92,7 @@ export default function ToolLayout({
                     onClick={onButtonClick}
                     className={`relative flex flex-col items-center justify-center w-full p-12 lg:p-24 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300 ${dragOver ? 'border-primary bg-primary/10 scale-105' : 'border-border hover:border-primary/50'}`}
                 >
-                    <UploadCloud className="w-16 h-16 text-muted-foreground mb-4 transition-transform duration-300 ${dragOver ? 'transform -translate-y-2' : ''}" />
+                    <UploadCloud className={`w-16 h-16 text-muted-foreground mb-4 transition-transform duration-300 ${dragOver ? 'transform -translate-y-2' : ''}`} />
                     <h2 className="text-xl font-semibold">Drag & drop your image here</h2>
                     <p className="text-muted-foreground">or click to browse</p>
                     <input

@@ -5,7 +5,7 @@ import ToolLayout from "@/components/tool-layout";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
-import { Wand2, Loader2, Download, Eraser } from 'lucide-react';
+import { Wand2, Loader2, Download, Eraser, Undo2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function DslrBlurPage() {
@@ -39,7 +39,7 @@ export default function DslrBlurPage() {
 
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!imageRef.current) return;
+        if (!imageRef.current || isProcessing) return;
         setIsSelecting(true);
         const rect = e.currentTarget.getBoundingClientRect();
         setStartPoint({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -68,7 +68,7 @@ export default function DslrBlurPage() {
     };
 
     const processImage = useCallback(() => {
-        if (!originalImage || !imageRef.current || !selectionRect || !canvasContainerRef.current) {
+        if (!originalImage || !imageRef.current || !selectionRect) {
             if (selectionRect) { // Only toast if there's a rect but other things are missing
                 toast({
                     variant: "destructive",
@@ -80,6 +80,7 @@ export default function DslrBlurPage() {
         }
 
         setIsProcessing(true);
+        setProcessedImage(null); // Show loading state
 
         // Use a timeout to avoid blocking the UI thread on heavy operations
         setTimeout(() => {
@@ -119,6 +120,7 @@ export default function DslrBlurPage() {
                     title: "Processing Error",
                     description: error.message || "An unexpected error occurred.",
                 });
+                setProcessedImage(originalImage); // Revert on error
             } finally {
                 setIsProcessing(false);
             }
@@ -162,13 +164,13 @@ export default function DslrBlurPage() {
                 originalImage && (
                     <div 
                         ref={canvasContainerRef}
-                        className="relative w-full h-full cursor-crosshair"
+                        className={`relative w-full h-full ${isProcessing ? 'cursor-wait' : 'cursor-crosshair'}`}
                         onMouseDown={handleMouseDown}
                         onMouseMove={handleMouseMove}
                         onMouseUp={handleMouseUp}
                         onMouseLeave={handleMouseUp}
                     >
-                         {selectionRect && (
+                         {selectionRect && !isProcessing && (
                             <div
                                 className="absolute border-2 border-dashed border-primary bg-primary/20 pointer-events-none"
                                 style={{
@@ -206,7 +208,7 @@ export default function DslrBlurPage() {
 
                     <div className="flex flex-col gap-4 !mt-8">
                         <Button onClick={handleResetSelection} variant="outline" disabled={isProcessing || !hasSelection}>
-                           <Eraser />
+                           <Undo2 />
                            Clear Selection
                         </Button>
                         <Button onClick={handleDownload} disabled={isProcessing || !processedImage || processedImage === originalImage} variant="secondary">
