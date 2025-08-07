@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "ImageCon.pro - The Ultimate Free Image Toolbox",
   description:
     "Edit, sketch, resize, crop, and enhance your images – 100% free, no signup, no watermark.",
+  keywords: "image editor, free tools, image compressor, image resizer, background blur, tattoo stencil, coloring page, passport photo, image crop",
 };
 
 export default function RootLayout({
@@ -27,7 +28,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=PT+Sans:wght@400;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
           rel="stylesheet"
         />
         <Script src="https://docs.opencv.org/4.9.0/opencv.js" strategy="beforeInteractive" />
@@ -35,7 +36,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >

@@ -15,19 +15,19 @@ export function ToolCard({ name, description, href, icon }: ToolCardProps) {
   const LucideIcon = typeof icon === 'string' ? Icons[icon as keyof typeof Icons] as React.ComponentType<React.ComponentProps<typeof Icons.Icon>> : icon;
 
   return (
-    <Link href={href} className="group">
-      <Card className="flex h-full flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-card/50 hover:bg-card">
-        <CardHeader className="items-center text-center">
-            <div className="mb-4 rounded-full bg-primary/10 p-4 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                {LucideIcon && <LucideIcon className="h-8 w-8" />}
+    <Link href={href} className="group block h-full">
+      <Card className="flex h-full flex-col overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-primary/20 group-hover:-translate-y-2 bg-card border border-border hover:border-primary/50">
+        <CardHeader className="items-start">
+            <div className="mb-4 rounded-lg bg-primary/10 p-3 text-primary ring-2 ring-primary/20">
+                {LucideIcon && <LucideIcon className="h-7 w-7" />}
             </div>
             <CardTitle className="font-headline text-xl">{name}</CardTitle>
-            <CardDescription className="pt-2 min-h-[4rem]">{description}</CardDescription>
+            <CardDescription className="pt-2 min-h-[4rem] text-muted-foreground/80">{description}</CardDescription>
         </CardHeader>
-        <CardContent className="mt-auto flex justify-center">
-            <Button variant="outline" className="w-full group-hover:bg-accent group-hover:text-accent-foreground group-hover:border-accent transition-colors">
-                Use Tool <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+        <CardContent className="mt-auto flex justify-start">
+            <div className="flex items-center text-sm font-semibold text-primary">
+                Use Tool <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </div>
         </CardContent>
       </Card>
     </Link>

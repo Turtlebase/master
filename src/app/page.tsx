@@ -24,25 +24,30 @@ const tools: Tool[] = [
 
 export default function Home() {
   return (
-    <div className="container mx-auto px-4 py-12 sm:py-16 md:py-24">
-      <section className="text-center mb-16 md:mb-24">
-        <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tight text-primary">
-          The Ultimate Free Image Toolbox
-        </h1>
-        <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-          Edit, sketch, resize, crop, and enhance your images – 100% free, no signup, no watermark.
-        </p>
-        <div className="mt-8">
-          <Button asChild size="lg" className="font-semibold text-lg py-6 px-8 shadow-lg hover:shadow-primary/30 transition-shadow">
-            <Link href="#tools">Start Editing</Link>
-          </Button>
+    <div className="animate-fade-in-up">
+      <section className="text-center py-20 md:py-32">
+        <div className="container mx-auto px-4">
+          <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-r from-primary via-blue-400 to-blue-500 text-transparent bg-clip-text">
+            Ultimate Free Image Toolbox
+          </h1>
+          <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground">
+            Edit, sketch, resize, crop, and enhance your images. 100% free, no signup, no watermarks.
+          </p>
+          <div className="mt-10">
+            <Button asChild size="lg" className="font-semibold text-lg py-7 px-10 shadow-[0_0_20px_theme(colors.primary/30%)] hover:shadow-[0_0_30px_theme(colors.primary/50%)] transition-all duration-300 transform hover:scale-105">
+              <Link href="#tools">Explore Tools</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
-      <section id="tools">
+      <section id="tools" className="container mx-auto px-4 py-16 sm:py-24">
+         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 font-headline">Our Suite of Tools</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {tools.map((tool) => (
-            <ToolCard key={tool.href} {...tool} />
+          {tools.map((tool, index) => (
+            <div key={tool.href} className="animate-fade-in-up" style={{ animationDelay: `${index * 100}ms`}}>
+              <ToolCard {...tool} />
+            </div>
           ))}
         </div>
       </section>
