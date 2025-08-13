@@ -1,3 +1,4 @@
+'use server';
 // IMPORTANT: This file is a convention for hosting Genkit flows on Firebase App Hosting.
 //
 // It is NOT a conventional Next.js API route that you would create for your app.
@@ -6,12 +7,7 @@
 // You should not need to edit this file.
 import {genkit} from 'genkit';
 
-export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '10mb',
-        },
-    },
-};
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Set a 60-second timeout
 
 export {genkit as GET, genkit as POST};
