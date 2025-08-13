@@ -1,16 +1,16 @@
 
 "use client";
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
-import removeBackground from "@imgly/background-removal";
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { removeBackground } from '@/ai/flows/remove-background-flow';
 
 const backgroundColors = [
     { name: 'Transparent', value: 'transparent' },
@@ -23,16 +23,15 @@ const backgroundColors = [
 
 const howToUseSteps = [
     { title: "Step 1: Upload Your Image", description: "Select any image from which you want to remove the background. Clear subjects work best." },
-    { title: "Step 2: Processing", description: "The tool will automatically detect the main subject and remove the background. This may take a few moments depending on your computer's speed." },
+    { title: "Step 2: Processing", description: "The tool will send the image to our server to automatically remove the background and will return the result." },
     { title: "Step 3: Choose New Background", description: "Once processed, you can choose a new background color from the palette or keep it transparent." },
     { title: "Step 4: Download", description: "Click the 'Download Image' button to save your new image with the background removed." },
 ];
 
 const faqItems = [
-    { question: "How does the background removal work?", answer: "This tool uses a state-of-the-art, browser-based AI model (@imgly/background-removal) to intelligently identify the foreground (the subject) and separate it from the background. All processing happens on your computer." },
-    { question: "Are my images uploaded to a server?", answer: "Absolutely not. Your privacy is paramount. The entire process, from loading the AI model to processing the image, happens locally in your browser." },
+    { question: "How does the background removal work?", answer: "This tool uses the Remove.bg API, a professional service, to intelligently identify the foreground (the subject) and separate it from the background." },
+    { question: "Are my images stored?", answer: "Your images are sent to the Remove.bg service for processing and are not stored by us. Please refer to their privacy policy for details." },
     { question: "What is the best type of image to use?", answer: "Images with a clear distinction between the subject and the background yield the best results. The model is very powerful and works on a wide variety of images." },
-    { question: "Why is it slow the first time?", answer: "The first time you use the tool, your browser needs to download and initialize the AI model. Subsequent uses will be much faster as the model will be cached." },
 ];
 
 
@@ -43,43 +42,41 @@ export default function RemoveBackgroundPage() {
     const [processedImage, setProcessedImage] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [bgColor, setBgColor] = useState('transparent');
-    
-    const handleImageUpload = (image: string | null) => {
-        setOriginalImage(image);
-        setProcessedImage(null);
-        setImageWithTransparentBg(null);
-        setBgColor('transparent');
-        if (image) {
-            removeAndDisplayImage(image);
-        }
-    }
 
-    const removeAndDisplayImage = useCallback(async (image: string) => {
+    const handleImageUpload = async (image: string | null) => {
+        if (!image) {
+            setOriginalImage(null);
+            setImageWithTransparentBg(null);
+            setProcessedImage(null);
+            return;
+        }
+        setOriginalImage(image);
+        setImageWithTransparentBg(null);
+        setProcessedImage(null);
+        setBgColor('transparent');
         setIsProcessing(true);
+
         try {
-            const resultBlob = await removeBackground(image, {
-                onProgress: (progress) => {
-                     toast({
-                        title: "Initializing AI Engine...",
-                        description: `The AI model is loading. Progress: ${progress.toFixed(0)}%`,
-                    });
-                },
-            });
-            const resultUrl = URL.createObjectURL(resultBlob);
+            const result = await removeBackground({ image_file_b64: image.split(',')[1] });
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            const resultUrl = `data:image/png;base64,${result.image_file_b64}`;
             setImageWithTransparentBg(resultUrl);
+            setProcessedImage(resultUrl);
         } catch (error: any) {
             console.error(error);
-            setOriginalImage(null); // Reset on error
             toast({
                 variant: "destructive",
                 title: "Processing Error",
-                description: "Could not remove background. The AI model may have failed. Please try a different image.",
+                description: error.message || "Could not remove background. The API may be unavailable or you may have run out of credits.",
             });
+            setOriginalImage(null);
         } finally {
             setIsProcessing(false);
         }
-    }, [toast]);
-
+    }
+    
     const applyBackgroundColor = useCallback(() => {
         if (!imageWithTransparentBg) return;
 
@@ -100,31 +97,16 @@ export default function RemoveBackgroundPage() {
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
                 setProcessedImage(canvas.toDataURL('image/png'));
-            } else {
-                 toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Could not get canvas context to apply color.",
-                });
-                setProcessedImage(imageWithTransparentBg);
             }
         };
-        img.onerror = () => {
-             toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Could not load the processed image to apply a background color.",
-            });
-             setProcessedImage(imageWithTransparentBg); // fallback to transparent
-        }
         img.src = imageWithTransparentBg;
-    }, [imageWithTransparentBg, bgColor, toast]);
+    }, [imageWithTransparentBg, bgColor]);
 
-    useEffect(() => {
+    const handleBgColorChange = (color: string) => {
+        setBgColor(color);
         applyBackgroundColor();
-    }, [imageWithTransparentBg, bgColor, applyBackgroundColor]);
-
-
+    }
+    
     const handleDownload = () => {
         if (!processedImage) return;
         const link = document.createElement('a');
@@ -158,7 +140,7 @@ export default function RemoveBackgroundPage() {
                                 {backgroundColors.map(color => (
                                     <button
                                         key={color.name}
-                                        onClick={() => setBgColor(color.value)}
+                                        onClick={() => handleBgColorChange(color.value)}
                                         className={cn(
                                             "w-8 h-8 rounded-full border-2 transition-all disabled:opacity-50",
                                             bgColor === color.value ? 'border-primary scale-110' : 'border-border',
