@@ -40,6 +40,7 @@ const faqItems = [
 export default function RemoveBackgroundPage() {
     const { toast } = useToast();
     const [originalImage, setOriginalImage] = useState<string | null>(null);
+    const [imageWithTransparentBg, setImageWithTransparentBg] = useState<string | null>(null);
     const [processedImage, setProcessedImage] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [bgColor, setBgColor] = useState('transparent');
@@ -47,21 +48,19 @@ export default function RemoveBackgroundPage() {
     const handleImageUpload = async (image: string | null) => {
         setOriginalImage(image);
         setProcessedImage(null);
+        setImageWithTransparentBg(null);
         setBgColor('transparent');
         if (image) {
             await processImage(image);
         }
     }
 
-    const processImage = useCallback(async (image: string, newBgColor?: string) => {
-        const finalBgColor = newBgColor || bgColor;
+    const processImage = useCallback(async (image: string) => {
         setIsProcessing(true);
         setProcessedImage(null);
-
         try {
             const resultBlob = await removeBackground(image, {
                 onProgress: (progress) => {
-                    console.log(`Loading model: ${progress.toFixed(2)}%`);
                      toast({
                         title: "Initializing AI Engine...",
                         description: `The AI model is loading. Progress: ${progress.toFixed(0)}%`,
@@ -69,30 +68,8 @@ export default function RemoveBackgroundPage() {
                 },
             });
             const resultUrl = URL.createObjectURL(resultBlob);
-            
-            if(finalBgColor && finalBgColor !== 'transparent') {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    if(ctx) {
-                        ctx.fillStyle = finalBgColor;
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(img, 0, 0);
-                        setProcessedImage(canvas.toDataURL('image/png'));
-                    } else {
-                         setProcessedImage(resultUrl);
-                    }
-                    URL.revokeObjectURL(resultUrl);
-                }
-                img.src = resultUrl;
-
-            } else {
-                setProcessedImage(resultUrl);
-            }
-
+            setImageWithTransparentBg(resultUrl);
+            setProcessedImage(resultUrl);
         } catch (error: any) {
             console.error(error);
             toast({
@@ -104,14 +81,43 @@ export default function RemoveBackgroundPage() {
         } finally {
             setIsProcessing(false);
         }
-    }, [toast, bgColor, originalImage]);
+    }, [toast, originalImage]);
 
 
     const handleBgColorChange = (color: string) => {
         setBgColor(color);
-        if(originalImage){
-             processImage(originalImage, color);
+        if (!imageWithTransparentBg) return;
+
+        if (color === 'transparent') {
+            setProcessedImage(imageWithTransparentBg);
+            return;
         }
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.fillStyle = color;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                setProcessedImage(canvas.toDataURL('image/png'));
+            } else {
+                // Fallback to transparent if canvas fails
+                setProcessedImage(imageWithTransparentBg);
+            }
+        };
+        img.onerror = () => {
+             toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Could not apply background color.",
+            });
+        }
+        img.src = imageWithTransparentBg;
     }
 
     const handleDownload = () => {
@@ -155,7 +161,7 @@ export default function RemoveBackgroundPage() {
                                         )}
                                         style={color.value !== 'transparent' ? { backgroundColor: color.value } : {}}
                                         aria-label={color.name}
-                                        disabled={isProcessing}
+                                        disabled={isProcessing || !imageWithTransparentBg}
                                     />
                                 ))}
                             </div>
