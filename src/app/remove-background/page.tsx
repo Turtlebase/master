@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
@@ -11,7 +11,6 @@ import { Faq } from '@/components/faq';
 import removeBackground from "@imgly/background-removal";
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
-
 
 const backgroundColors = [
     { name: 'Transparent', value: 'transparent' },
@@ -57,7 +56,6 @@ export default function RemoveBackgroundPage() {
 
     const processImage = useCallback(async (image: string) => {
         setIsProcessing(true);
-        setProcessedImage(null);
         try {
             const resultBlob = await removeBackground(image, {
                 onProgress: (progress) => {
@@ -69,7 +67,6 @@ export default function RemoveBackgroundPage() {
             });
             const resultUrl = URL.createObjectURL(resultBlob);
             setImageWithTransparentBg(resultUrl);
-            setProcessedImage(resultUrl);
         } catch (error: any) {
             console.error(error);
             toast({
@@ -83,12 +80,10 @@ export default function RemoveBackgroundPage() {
         }
     }, [toast, originalImage]);
 
-
-    const handleBgColorChange = (color: string) => {
-        setBgColor(color);
+    const applyBackgroundColor = useCallback(() => {
         if (!imageWithTransparentBg) return;
 
-        if (color === 'transparent') {
+        if (bgColor === 'transparent') {
             setProcessedImage(imageWithTransparentBg);
             return;
         }
@@ -101,12 +96,11 @@ export default function RemoveBackgroundPage() {
             canvas.height = img.height;
             const ctx = canvas.getContext('2d');
             if (ctx) {
-                ctx.fillStyle = color;
+                ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
                 setProcessedImage(canvas.toDataURL('image/png'));
             } else {
-                // Fallback to transparent if canvas fails
                 setProcessedImage(imageWithTransparentBg);
             }
         };
@@ -118,7 +112,12 @@ export default function RemoveBackgroundPage() {
             });
         }
         img.src = imageWithTransparentBg;
-    }
+    }, [imageWithTransparentBg, bgColor, toast]);
+
+    useEffect(() => {
+        applyBackgroundColor();
+    }, [imageWithTransparentBg, bgColor, applyBackgroundColor]);
+
 
     const handleDownload = () => {
         if (!processedImage) return;
@@ -153,7 +152,7 @@ export default function RemoveBackgroundPage() {
                                 {backgroundColors.map(color => (
                                     <button
                                         key={color.name}
-                                        onClick={() => handleBgColorChange(color.value)}
+                                        onClick={() => setBgColor(color.value)}
                                         className={cn(
                                             "w-8 h-8 rounded-full border-2 transition-all disabled:opacity-50",
                                             bgColor === color.value ? 'border-primary scale-110' : 'border-border',
