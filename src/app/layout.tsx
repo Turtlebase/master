@@ -4,11 +4,12 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-import { Inter, Poppins } from "next/font/google";
+import { PT_Sans, Poppins } from "next/font/google";
 import { cn } from "@/lib/utils";
 
-const fontBody = Inter({
+const fontBody = PT_Sans({
   subsets: ["latin"],
+  weight: ["400", "700"],
   variable: "--font-body",
 });
 
