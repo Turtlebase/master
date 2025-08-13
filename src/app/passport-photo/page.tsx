@@ -5,7 +5,6 @@ import { useState, useCallback } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, Wand2, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +13,7 @@ import { getCroppedImg } from './cropUtils';
 import { Slider } from '@/components/ui/slider';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
+import { cn } from '@/lib/utils';
 
 const passportOptions = {
     'us': { name: 'US Passport (2x2 in)', width: 600, height: 600, aspect: 1 },
@@ -24,18 +24,24 @@ const passportOptions = {
 
 type PassportKey = keyof typeof passportOptions;
 
+const backgroundColors = [
+    { name: 'White', value: '#FFFFFF' },
+    { name: 'Light Blue', value: '#E1F5FE' },
+    { name: 'Gray', value: '#F5F5F5' },
+    { name: 'Red', value: '#FFEBEE' },
+];
+
 const howToUseSteps = [
-    { title: "Step 1: Upload Your Headshot", description: "Choose a clear, recent photo of yourself with a plain background." },
-    { title: "Step 2: Select the Format", description: "Pick the document type from the dropdown menu (e.g., 'US Passport'). The crop area will automatically adjust to the correct aspect ratio." },
+    { title: "Step 1: Upload Your Headshot", description: "Choose a clear, recent photo of yourself. A plain original background works best." },
+    { title: "Step 2: Select Format & Background", description: "Pick the document type and choose a background color from the palette." },
     { title: "Step 3: Position Your Photo", description: "Use the zoom and rotation controls to position your head correctly within the frame. Official guidelines often require your head to be centered and a certain size." },
-    { title: "Step 4: Generate & Download", description: "Click 'Generate Photo' to create the final image, then click 'Download Photo' to save it." },
+    { title: "Step 4: Generate & Download", description: "Click 'Generate Photo' to create the final image with the new background, then click 'Download Photo' to save it." },
 ];
 
 const faqItems = [
     { question: "Does this tool guarantee my photo will be accepted?", answer: "This tool helps you meet the size and composition requirements (e.g., 2x2 inches), but it cannot check for other issues like improper lighting, shadows, or incorrect facial expressions. Always check the official guidelines for your specific document." },
-    { question: "What does the 'White Background' switch do?", answer: "Most passport photos require a plain white or off-white background. If your original photo has a different background, this feature will replace it with a solid white one. This works best if your original background is relatively plain." },
+    { question: "How does the background replacement work?", answer: "The tool crops your image and places it onto a new, clean background of the color you select. For best results, start with a photo that has a relatively plain background." },
     { question: "Are my photos kept private?", answer: "Yes. All processing is done in your browser. Your photos are never uploaded to our servers, ensuring your data is secure." },
-    { question: "Can I use this for other types of ID photos?", answer: "Absolutely. While we have presets for common documents, you can use the Image Cropper and Resizer tools for any custom ID photo dimensions." },
 ];
 
 export default function PassportPhotoPage() {
@@ -45,7 +51,7 @@ export default function PassportPhotoPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     
     const [format, setFormat] = useState<PassportKey>('us');
-    const [addWhiteBg, setAddWhiteBg] = useState(false);
+    const [bgColor, setBgColor] = useState<string>('#FFFFFF');
 
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
@@ -78,7 +84,7 @@ export default function PassportPhotoPage() {
                 rotation,
                 currentFormat.width,
                 currentFormat.height,
-                addWhiteBg
+                bgColor
             );
             setProcessedImage(croppedImage);
         } catch (e) {
@@ -87,7 +93,7 @@ export default function PassportPhotoPage() {
         } finally {
             setIsProcessing(false);
         }
-    }, [originalImage, croppedAreaPixels, rotation, toast, format, addWhiteBg]);
+    }, [originalImage, croppedAreaPixels, rotation, toast, format, bgColor]);
 
     const handleDownload = () => {
         if (!processedImage) return;
@@ -105,7 +111,7 @@ export default function PassportPhotoPage() {
     return (
         <ToolLayout
             title="Passport Photo Tool"
-            description="Crop and resize photos for any official ID with standard presets."
+            description="Create compliant passport photos with custom backgrounds."
             onImageUpload={handleImageUpload}
             isProcessing={isProcessing}
             showReset={hasImage}
@@ -167,12 +173,24 @@ export default function PassportPhotoPage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <Label htmlFor="white-bg" className="flex flex-col gap-1">
-                                <span>White Background</span>
-                                <span className="text-xs text-muted-foreground">Adds a plain white BG</span>
-                            </Label>
-                            <Switch id="white-bg" checked={addWhiteBg} onCheckedChange={setAddWhiteBg} disabled={isProcessing}/>
+                        
+                        <div className="space-y-2">
+                            <Label>Background Color</Label>
+                            <div className="flex gap-2">
+                                {backgroundColors.map(color => (
+                                    <button
+                                        key={color.name}
+                                        onClick={() => setBgColor(color.value)}
+                                        className={cn(
+                                            "w-8 h-8 rounded-full border-2 transition-all",
+                                            bgColor === color.value ? 'border-primary scale-110' : 'border-border'
+                                        )}
+                                        style={{ backgroundColor: color.value }}
+                                        aria-label={color.name}
+                                        disabled={isProcessing}
+                                    />
+                                ))}
+                            </div>
                         </div>
 
                          <div className="flex flex-col gap-4 !mt-8">

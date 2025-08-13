@@ -1,4 +1,5 @@
 
+
 export const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
@@ -32,7 +33,7 @@ export async function getCroppedImg(
   rotation = 0,
   outputWidth: number,
   outputHeight: number,
-  addWhiteBg = false,
+  backgroundColor: string | null = null,
 ): Promise<string> {
   const image = await createImage(imageSrc);
   const canvas = document.createElement('canvas');
@@ -83,9 +84,9 @@ export async function getCroppedImg(
   if(!resizeCtx) throw new Error('Could not get canvas context');
   resizeCtx.putImageData(data, 0, 0);
 
-  // optional white background
-  if (addWhiteBg) {
-    ctx.fillStyle = 'white';
+  // add solid background color if provided
+  if (backgroundColor) {
+    ctx.fillStyle = backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
