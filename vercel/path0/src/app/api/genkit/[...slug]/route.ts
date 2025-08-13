@@ -5,13 +5,4 @@
 // This file is used by the Genkit framework to handle requests to your flows.
 // You should not need to edit this file.
 import {genkit} from 'genkit';
-
-export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '10mb',
-        },
-    },
-};
-
 export {genkit as GET, genkit as POST};
