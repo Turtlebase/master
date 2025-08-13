@@ -4,7 +4,7 @@
 import { useState, useCallback } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Button } from '@/components/ui/button';
-import { Download, Loader2, Sparkles } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
@@ -104,7 +104,7 @@ export default function RemoveBackgroundPage() {
         } finally {
             setIsProcessing(false);
         }
-    }, [toast, bgColor]);
+    }, [toast, bgColor, originalImage]);
 
 
     const handleBgColorChange = (color: string) => {
