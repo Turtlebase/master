@@ -10,6 +10,7 @@ import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
 import removeBackground from "@imgly/background-removal";
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 
 
 const backgroundColors = [
@@ -173,4 +174,3 @@ export default function RemoveBackgroundPage() {
         </ToolLayout>
     );
 }
-
