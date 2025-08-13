@@ -44,17 +44,17 @@ export default function RemoveBackgroundPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [bgColor, setBgColor] = useState('transparent');
     
-    const handleImageUpload = async (image: string | null) => {
+    const handleImageUpload = (image: string | null) => {
         setOriginalImage(image);
         setProcessedImage(null);
         setImageWithTransparentBg(null);
         setBgColor('transparent');
         if (image) {
-            await processImage(image);
+            removeAndDisplayImage(image);
         }
     }
 
-    const processImage = useCallback(async (image: string) => {
+    const removeAndDisplayImage = useCallback(async (image: string) => {
         setIsProcessing(true);
         try {
             const resultBlob = await removeBackground(image, {
@@ -69,16 +69,16 @@ export default function RemoveBackgroundPage() {
             setImageWithTransparentBg(resultUrl);
         } catch (error: any) {
             console.error(error);
+            setOriginalImage(null); // Reset on error
             toast({
                 variant: "destructive",
                 title: "Processing Error",
                 description: "Could not remove background. The AI model may have failed. Please try a different image.",
             });
-             setProcessedImage(originalImage);
         } finally {
             setIsProcessing(false);
         }
-    }, [toast, originalImage]);
+    }, [toast]);
 
     const applyBackgroundColor = useCallback(() => {
         if (!imageWithTransparentBg) return;
@@ -101,6 +101,11 @@ export default function RemoveBackgroundPage() {
                 ctx.drawImage(img, 0, 0);
                 setProcessedImage(canvas.toDataURL('image/png'));
             } else {
+                 toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Could not get canvas context to apply color.",
+                });
                 setProcessedImage(imageWithTransparentBg);
             }
         };
@@ -108,8 +113,9 @@ export default function RemoveBackgroundPage() {
              toast({
                 variant: "destructive",
                 title: "Error",
-                description: "Could not apply background color.",
+                description: "Could not load the processed image to apply a background color.",
             });
+             setProcessedImage(imageWithTransparentBg); // fallback to transparent
         }
         img.src = imageWithTransparentBg;
     }, [imageWithTransparentBg, bgColor, toast]);
