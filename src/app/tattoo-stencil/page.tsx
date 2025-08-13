@@ -7,10 +7,27 @@ import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { HowToUse } from '@/components/how-to-use';
+import { Faq } from '@/components/faq';
+
 
 declare global {
     var cv: any;
 }
+
+const howToUseSteps = [
+    { title: "Step 1: Upload Your Design", description: "Choose a clear image. High-contrast designs with bold lines work best." },
+    { title: "Step 2: Fine-Tune the Stencil", description: "Use the sliders for Smoothness, Detail, and Edge Strength to get the perfect stencil." },
+    { title: "Step 3: Generate", description: "Click 'Generate Stencil'. The tool will process the image into a black and white outline." },
+    { title: "Step 4: Download", description: "Save the generated stencil to your device. It's now ready to be printed on transfer paper." },
+];
+
+const faqItems = [
+    { question: "How does this tool work?", answer: "This tool uses the Canny edge detection algorithm from the OpenCV.js computer vision library. It identifies the edges in your photo and converts them into lines to create a stencil." },
+    { question: "What do the different sliders do?", answer: " 'Smoothness' reduces image noise. 'Detail Level' controls how many faint edges are detected. 'Edge Strength' defines how strong an edge must be to be included. Experiment to see what works best for your art." },
+    { question: "Can I use this for complex photos?", answer: "Yes, but results may vary. The tool is optimized for converting drawings, logos, and graphics into stencils. For photorealistic stencils, you may need to adjust the sliders carefully." },
+    { question: "Is my artwork uploaded to a server?", answer: "No. For your privacy and security, all image processing is done directly in your web browser. Your files never leave your computer." },
+];
 
 export default function TattooStencilPage() {
     const { toast } = useToast();
@@ -61,7 +78,6 @@ export default function TattooStencilPage() {
             return;
         }
         setIsProcessing(true);
-        // Use a timeout to ensure the loading spinner renders before the heavy processing task
         setTimeout(() => {
             const imgElement = document.createElement('img');
             imgElement.crossOrigin = "anonymous";
@@ -108,7 +124,7 @@ export default function TattooStencilPage() {
                 });
                 setIsProcessing(false);
             }
-        }, 50); // Small delay to allow UI update
+        }, 50); 
     }, [originalImage, lowerThreshold, upperThreshold, blurValue, toast, isCvReady]);
 
     const handleDownload = () => {
@@ -123,7 +139,7 @@ export default function TattooStencilPage() {
 
     const handleImageUpload = (image: string | null) => {
         setOriginalImage(image);
-        setProcessedImage(image); // Show original image initially
+        setProcessedImage(image); 
     }
     
     return (
@@ -135,6 +151,8 @@ export default function TattooStencilPage() {
             isProcessing={isProcessing}
             showReset={!!originalImage}
             hideUpload={!isCvReady || !!originalImage}
+            howToUse={<HowToUse steps={howToUseSteps} />}
+            faq={<Faq items={faqItems} />}
         >
             <div className="space-y-6">
                 {!originalImage && (

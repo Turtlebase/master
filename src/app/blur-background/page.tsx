@@ -5,8 +5,25 @@ import ToolLayout from "@/components/tool-layout";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
-import { Wand2, Loader2, Download, Eraser, Undo2 } from 'lucide-react';
+import { Download, Loader2, Undo2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Faq } from '@/components/faq';
+import { HowToUse } from '@/components/how-to-use';
+
+const howToUseSteps = [
+    { title: "Step 1: Upload Your Image", description: "Click the upload area and select the photo you want to edit." },
+    { title: "Step 2: Select Your Subject", description: "Click and drag on the image to draw a rectangle around the person or object you want to keep in sharp focus." },
+    { title: "Step 3: Adjust Blur Intensity", description: "Use the 'Blur Intensity' slider to control how blurry the background becomes. The effect updates in real-time." },
+    { title: "Step 4: Download", description: "Once you're happy with the result, click the 'Download Image' button." },
+];
+
+const faqItems = [
+    { question: "How does this tool work?", answer: "This tool uses client-side processing to apply a blur filter to your image. When you draw a rectangle, it keeps that area sharp and blurs everything else, simulating the depth-of-field effect of a DSLR camera." },
+    { question: "Is my image uploaded to a server?", answer: "No. All processing happens directly in your browser for maximum privacy. Your images never leave your computer." },
+    { question: "What's the best type of image to use?", answer: "Images with a clear subject in the foreground and a distinct background work best. High-resolution images will also produce better results." },
+    { question: "Can I clear my selection and start over?", answer: "Yes, just click the 'Clear Selection' button to remove the focus area and reset the blur." },
+];
+
 
 export default function DslrBlurPage() {
     const { toast } = useToast();
@@ -23,8 +40,12 @@ export default function DslrBlurPage() {
     const [startPoint, setStartPoint] = useState<{x: number, y: number} | null>(null);
     const [selectionRect, setSelectionRect] = useState<{ x: number, y: number, w: number, h: number} | null>(null);
 
+    const processTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const handleImageUpload = (img: string | null) => {
+        if (processTimeoutRef.current) {
+            clearTimeout(processTimeoutRef.current);
+        }
         setOriginalImage(img);
         setProcessedImage(img); 
         setSelectionRect(null);
@@ -36,7 +57,6 @@ export default function DslrBlurPage() {
             }
         }
     };
-
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!imageRef.current || isProcessing) return;
@@ -69,21 +89,16 @@ export default function DslrBlurPage() {
 
     const processImage = useCallback(() => {
         if (!originalImage || !imageRef.current || !selectionRect) {
-            if (selectionRect) { // Only toast if there's a rect but other things are missing
-                toast({
-                    variant: "destructive",
-                    title: "Processing Error",
-                    description: "Something went wrong. Please try uploading the image again.",
-                });
-            }
             return;
         }
 
         setIsProcessing(true);
-        setProcessedImage(null); // Show loading state
 
-        // Use a timeout to avoid blocking the UI thread on heavy operations
-        setTimeout(() => {
+        if (processTimeoutRef.current) {
+            clearTimeout(processTimeoutRef.current);
+        }
+
+        processTimeoutRef.current = setTimeout(() => {
             try {
                 const img = imageRef.current!;
                 const canvas = document.createElement('canvas');
@@ -105,11 +120,9 @@ export default function DslrBlurPage() {
                     h: selectionRect.h * scaleY,
                 };
     
-                // Draw blurred image
                 ctx.filter = `blur(${blurIntensity}px)`;
                 ctx.drawImage(img, 0, 0);
                 
-                // Draw sharp part on top
                 ctx.filter = 'none';
                 ctx.drawImage(img, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h, scaledRect.x, scaledRect.y, scaledRect.w, scaledRect.h);
     
@@ -120,7 +133,7 @@ export default function DslrBlurPage() {
                     title: "Processing Error",
                     description: error.message || "An unexpected error occurred.",
                 });
-                setProcessedImage(originalImage); // Revert on error
+                setProcessedImage(originalImage);
             } finally {
                 setIsProcessing(false);
             }
@@ -129,10 +142,10 @@ export default function DslrBlurPage() {
     }, [originalImage, selectionRect, blurIntensity, toast]);
 
     useEffect(() => {
-        if (selectionRect) {
+        if (selectionRect && originalImage) {
             processImage();
         }
-    }, [blurIntensity, processImage, selectionRect]);
+    }, [blurIntensity, processImage, selectionRect, originalImage]);
     
     const handleResetSelection = () => {
         setSelectionRect(null);
@@ -150,6 +163,7 @@ export default function DslrBlurPage() {
     };
 
     const hasSelection = !!selectionRect;
+    const isReadyToDownload = processedImage !== originalImage;
 
     return (
         <ToolLayout
@@ -160,6 +174,8 @@ export default function DslrBlurPage() {
             showReset={!!originalImage}
             processedImage={processedImage}
             hideUpload={!!originalImage}
+            howToUse={<HowToUse steps={howToUseSteps} />}
+            faq={<Faq items={faqItems} />}
             imageContainerChildren={
                 originalImage && (
                     <div 
@@ -211,7 +227,7 @@ export default function DslrBlurPage() {
                            <Undo2 />
                            Clear Selection
                         </Button>
-                        <Button onClick={handleDownload} disabled={isProcessing || !processedImage || processedImage === originalImage} variant="secondary">
+                        <Button onClick={handleDownload} disabled={isProcessing || !isReadyToDownload} variant="secondary">
                             <Download />
                             Download Image
                         </Button>

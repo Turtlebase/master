@@ -1,11 +1,12 @@
-
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Button } from "@/components/ui/button";
-import { Download, Wand2, Undo2 } from 'lucide-react';
+import { Download, Undo2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Faq } from '@/components/faq';
+import { HowToUse } from '@/components/how-to-use';
 
 type FilterType = 'grayscale' | 'sepia' | 'invert' | 'vintage' | null;
 
@@ -26,7 +27,6 @@ const filterMatrix = {
     },
     vintage: (r: number, g: number, b: number) => {
         const sepia = filterMatrix.sepia(r, g, b);
-        // Increase contrast slightly and adjust brightness
         const contrast = 1.1;
         const brightness = -10;
         const finalR = Math.max(0, Math.min(255, (sepia[0] - 128) * contrast + 128 + brightness));
@@ -36,6 +36,19 @@ const filterMatrix = {
     },
 };
 
+const howToUseSteps = [
+    { title: "Step 1: Upload Your Image", description: "Select the photo you'd like to apply a filter to." },
+    { title: "Step 2: Choose a Filter", description: "Click on any of the filter buttons (e.g., Grayscale, Sepia) to instantly see a preview of the effect." },
+    { title: "Step 3: Experiment", description: "Feel free to try different filters. You can always go back to the original by clicking 'Revert to Original'." },
+    { title: "Step 4: Download Your Image", description: "Once you've chosen a filter you love, click the 'Download Image' button to save your newly styled photo." },
+];
+
+const faqItems = [
+    { question: "What are image filters?", answer: "Image filters are pre-set effects that change the look and feel of your photo by adjusting its colors, contrast, and tones. They are a quick and easy way to give your image a specific style, like a vintage or black-and-white look." },
+    { question: "Is the process destructive to my original photo?", answer: "Not at all. Your original photo is never modified. Our tool applies the filter to a copy of the image, and all processing is done within your browser." },
+    { question: "Can I combine multiple filters?", answer: "This tool is designed to apply one filter at a time. To apply multiple effects, you would need to download the image with the first filter and then re-upload it to apply a second one." },
+    { question: "Are my images private?", answer: "Yes, 100%. The filtering process happens on your own computer. Your images are never sent to or stored on our servers." },
+];
 
 export default function FiltersPage() {
     const { toast } = useToast();
@@ -72,15 +85,15 @@ export default function FiltersPage() {
         setActiveFilter(filter);
         const img = imageRef.current;
         const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
              toast({ variant: "destructive", title: "Error", description: "Could not process image." });
             return;
         };
 
-        ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
         const filterFn = filterMatrix[filter];
@@ -118,6 +131,8 @@ export default function FiltersPage() {
             isProcessing={false}
             showReset={hasImage}
             hideUpload={hasImage}
+            howToUse={<HowToUse steps={howToUseSteps} />}
+            faq={<Faq items={faqItems} />}
         >
             {hasImage ? (
                 <div className="space-y-6">

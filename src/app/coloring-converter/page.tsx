@@ -7,11 +7,27 @@ import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Skeleton } from '@/components/ui/skeleton';
+import { HowToUse } from '@/components/how-to-use';
+import { Faq } from '@/components/faq';
 
 declare global {
     var cv: any;
 }
+
+const howToUseSteps = [
+    { title: "Step 1: Upload Photo", description: "Select a photo from your device. Complex photos with lots of detail work best." },
+    { title: "Step 2: Adjust Settings", description: "Use the 'Smoothness' and 'Line Thickness' sliders to fine-tune the final look of the line art." },
+    { title: "Step 3: Generate", description: "Click the 'Generate Page' button to convert your photo into a coloring page." },
+    { title: "Step 4: Download & Print", description: "Click 'Download Page' to save the image. You can then print it out and start coloring." },
+];
+
+const faqItems = [
+    { question: "How does it work?", answer: "The tool uses the OpenCV.js library to perform edge detection on your image. It converts the image to grayscale, blurs it to reduce noise, and then uses an adaptive threshold to create the final black and white line art." },
+    { question: "Is it free to use?", answer: "Yes, this tool is 100% free. There are no watermarks or limitations." },
+    { question: "What happens to my uploaded image?", answer: "Nothing. The entire process happens in your browser. Your image is never sent to our servers, ensuring your privacy." },
+    { question: "What do the sliders do?", answer: "'Smoothness' reduces fine details for a cleaner look. 'Line Thickness' controls how bold the outlines are. Experiment to see what works best for your image!" },
+];
+
 
 export default function ColoringConverterPage() {
     const { toast } = useToast();
@@ -62,7 +78,6 @@ export default function ColoringConverterPage() {
             return;
         }
         setIsProcessing(true);
-        // Use a timeout to ensure the loading spinner renders before the heavy processing task
         setTimeout(() => {
             const imgElement = document.createElement('img');
             imgElement.crossOrigin = "anonymous";
@@ -109,7 +124,7 @@ export default function ColoringConverterPage() {
                 });
                 setIsProcessing(false);
             }
-        }, 50); // Small delay to allow UI update
+        }, 50); 
     }, [originalImage, blurValue, lineThickness, toast, isCvReady]);
 
     const handleDownload = () => {
@@ -124,7 +139,7 @@ export default function ColoringConverterPage() {
 
     const handleImageUpload = (image: string | null) => {
         setOriginalImage(image);
-        setProcessedImage(image); // Show original image initially
+        setProcessedImage(image); 
     }
     
     return (
@@ -136,6 +151,8 @@ export default function ColoringConverterPage() {
             isProcessing={isProcessing}
             showReset={!!originalImage}
             hideUpload={!isCvReady || !!originalImage}
+            howToUse={<HowToUse steps={howToUseSteps} />}
+            faq={<Faq items={faqItems} />}
         >
             <div className="space-y-6">
                 {!originalImage && (

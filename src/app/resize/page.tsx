@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,22 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Faq } from '@/components/faq';
+import { HowToUse } from '@/components/how-to-use';
+
+const howToUseSteps = [
+    { title: "Step 1: Upload an Image", description: "Select the image you want to resize." },
+    { title: "Step 2: Enter New Dimensions", description: "Type your desired width or height in pixels into the input fields. If 'Keep Aspect Ratio' is on, the other dimension will update automatically." },
+    { title: "Step 3: Keep Aspect Ratio (Optional)", description: "Toggle the switch to lock or unlock the aspect ratio. Keeping it on prevents your image from being stretched or distorted." },
+    { title: "Step 4: Generate and Download", description: "Click 'Generate' to see the resized image. Then, click 'Download Image' to save it." },
+];
+
+const faqItems = [
+    { question: "What does 'Keep Aspect Ratio' do?", answer: "It maintains the original proportions of your image. If you change the width, the height adjusts automatically to prevent the image from looking stretched or squashed. It is highly recommended to keep this on." },
+    { question: "Will resizing make my image lose quality?", answer: "Making an image smaller usually doesn't result in significant quality loss. However, making an image much larger than its original size can cause it to look blurry or pixelated." },
+    { question: "What units are the width and height in?", answer: "The dimensions are in pixels (px), which is the standard unit for digital images on screens." },
+    { question: "Is this tool private?", answer: "Yes. The resizing process happens entirely within your web browser. Your images are never uploaded to a server, ensuring your privacy." },
+];
 
 export default function ResizePage() {
     const { toast } = useToast();
@@ -122,6 +138,8 @@ export default function ResizePage() {
             isProcessing={isProcessing}
             showReset={!!originalImage}
             hideUpload={!!originalImage}
+            howToUse={<HowToUse steps={howToUseSteps} />}
+            faq={<Faq items={faqItems} />}
         >
             {originalImage ? (
                 <div className="space-y-6">

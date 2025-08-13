@@ -4,24 +4,24 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
+    --background: 222 84% 4.9%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 10%;
+    --card: 222 84% 6.5%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 222 84% 4.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 210 100% 50%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+    --muted: 217 33% 17%;
     --muted-foreground: 0 0% 63.9%;
     --accent: 210 100% 50%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
     --ring: 210 100% 50%;
     --radius: 0.75rem;
     --chart-1: 12 76% 61%;
@@ -32,24 +32,24 @@
   }
  
   .dark {
-    --background: 240 10% 3.9%;
+    --background: 222 84% 4.9%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 10%;
+    --card: 222 84% 6.5%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 222 84% 4.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 210 100% 50%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+    --muted: 217 33% 17%;
     --muted-foreground: 0 0% 63.9%;
     --accent: 210 100% 50%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
     --ring: 210 100% 50%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -66,4 +66,19 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer components {
+    .how-to-use ol {
+        @apply relative border-l-2 border-primary/20 pl-6 space-y-8;
+    }
+    .how-to-use li {
+        @apply before:content-[''] before:absolute before:-left-[11px] before:top-1 before:h-5 before:w-5 before:rounded-full before:bg-primary before:border-4 before:border-background;
+    }
+    .how-to-use h3 {
+        @apply font-semibold text-lg text-primary-foreground;
+    }
+    .how-to-use p {
+        @apply text-muted-foreground text-sm;
+    }
 }

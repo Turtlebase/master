@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from './cropUtils';
 import { Slider } from '@/components/ui/slider';
+import { HowToUse } from '@/components/how-to-use';
+import { Faq } from '@/components/faq';
 
 const passportOptions = {
     'us': { name: 'US Passport (2x2 in)', width: 600, height: 600, aspect: 1 },
@@ -20,6 +22,20 @@ const passportOptions = {
 };
 
 type PassportKey = keyof typeof passportOptions;
+
+const howToUseSteps = [
+    { title: "Step 1: Upload Your Headshot", description: "Choose a clear, recent photo of yourself with a plain background." },
+    { title: "Step 2: Select the Format", description: "Pick the document type from the dropdown menu (e.g., 'US Passport'). The crop area will automatically adjust to the correct aspect ratio." },
+    { title: "Step 3: Position Your Photo", description: "Use the zoom and rotation controls to position your head correctly within the frame. Official guidelines often require your head to be centered and a certain size." },
+    { title: "Step 4: Generate & Download", description: "Click 'Generate Photo' to create the final image, then click 'Download Photo' to save it." },
+];
+
+const faqItems = [
+    { question: "Does this tool guarantee my photo will be accepted?", answer: "This tool helps you meet the size and composition requirements (e.g., 2x2 inches), but it cannot check for other issues like improper lighting, shadows, or incorrect facial expressions. Always check the official guidelines for your specific document." },
+    { question: "What does the 'White Background' switch do?", answer: "Most passport photos require a plain white or off-white background. If your original photo has a different background, this feature will replace it with a solid white one. This works best if your original background is relatively plain." },
+    { question: "Are my photos kept private?", answer: "Yes. All processing is done in your browser. Your photos are never uploaded to our servers, ensuring your data is secure." },
+    { question: "Can I use this for other types of ID photos?", answer: "Absolutely. While we have presets for common documents, you can use the Image Cropper and Resizer tools for any custom ID photo dimensions." },
+];
 
 export default function PassportPhotoPage() {
     const { toast } = useToast();
@@ -94,6 +110,8 @@ export default function PassportPhotoPage() {
             showReset={hasImage}
             hideUpload={hasImage}
             processedImage={processedImage}
+            howToUse={<HowToUse steps={howToUseSteps} />}
+            faq={<Faq items={faqItems} />}
             imageContainerChildren={
                 hasImage && !processedImage && (
                      <div className="relative w-full h-full min-h-[400px] md:min-h-[500px] bg-muted/30 rounded-lg flex flex-col">

@@ -5,9 +5,11 @@ import ToolLayout from "@/components/tool-layout";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
-import { Download, Loader2, FileDigit, Wand2 } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
+import { HowToUse } from '@/components/how-to-use';
+import { Faq } from '@/components/faq';
 
 const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -16,6 +18,21 @@ const formatFileSize = (bytes: number) => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
+
+const howToUseSteps = [
+    { title: "Step 1: Upload Your Image", description: "Select any JPG, PNG, or WEBP image you want to compress." },
+    { title: "Step 2: Adjust Quality", description: "Move the 'Quality' slider. As you move it, you'll see a real-time preview of the compressed image and the new file size." },
+    { title: "Step 3: Compare Sizes", description: "Check the info card to see the original size, the new compressed size, and the percentage of file size reduction." },
+    { title: "Step 4: Download", description: "When you've found the perfect balance of quality and file size, click the 'Download Image' button." },
+];
+
+const faqItems = [
+    { question: "What does 'quality' mean?", answer: "Quality refers to the level of compression. A lower quality value (e.g., 20%) will result in a much smaller file size but may have visible artifacts. A higher value (e.g., 90%) will look almost identical to the original but have a larger file size." },
+    { question: "Will this reduce the image dimensions (width/height)?", answer: "No, this tool only reduces the file size (in KB/MB). To change the dimensions, please use our Image Resizer tool." },
+    { question: "Is there a quality loss when compressing?", answer: "Yes, for formats like JPEG, compression is 'lossy,' meaning some data is discarded to save space. For PNGs, the compression is 'lossless' but may not reduce file size as dramatically. The preview helps you see how much quality is lost." },
+    { question: "Are my images stored on your server?", answer: "No. All compression is done in your browser. Your images are never uploaded or stored by us." },
+];
+
 
 export default function CompressPage() {
     const { toast } = useToast();
@@ -37,7 +54,7 @@ export default function CompressPage() {
         if (image && file) {
             setOriginalImage({ dataUrl: image, file });
             setOriginalSize(file.size);
-            setProcessedImage(image); // Initially show original
+            setProcessedImage(image); 
             setCompressedSize(file.size);
             
             const img = new Image();
@@ -58,7 +75,6 @@ export default function CompressPage() {
         if (!originalImage || !imageRef.current) return;
 
         setIsProcessing(true);
-        // Debounce processing
         if (processTimeoutRef.current) {
             clearTimeout(processTimeoutRef.current);
         }
@@ -93,7 +109,7 @@ export default function CompressPage() {
             } finally {
                 setIsProcessing(false);
             }
-        }, 200); // 200ms debounce
+        }, 50);
 
     }, [originalImage, quality, toast]);
 
@@ -127,6 +143,8 @@ export default function CompressPage() {
             isProcessing={isProcessing}
             showReset={hasImage}
             hideUpload={hasImage}
+            howToUse={<HowToUse steps={howToUseSteps} />}
+            faq={<Faq items={faqItems} />}
         >
             {hasImage ? (
                 <div className="space-y-6">
@@ -156,7 +174,7 @@ export default function CompressPage() {
                             </div>
                              <div className="flex justify-between items-center text-sm">
                                 <span className="text-muted-foreground">Compressed Size:</span>
-                                <span className="font-mono font-medium">{compressedSize ? formatFileSize(compressedSize) : '...'}</span>
+                                <span className="font-mono font-medium">{isProcessing ? <Loader2 className="w-4 h-4 animate-spin"/> : (compressedSize ? formatFileSize(compressedSize) : '...') }</span>
                             </div>
                             <div className="flex justify-between items-center text-lg font-bold text-primary">
                                 <span>Reduction:</span>

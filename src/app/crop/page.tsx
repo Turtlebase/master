@@ -9,12 +9,28 @@ import Cropper from 'react-easy-crop';
 import { getCroppedImg } from '../passport-photo/cropUtils';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Faq } from '@/components/faq';
+import { HowToUse } from '@/components/how-to-use';
 
 const aspectRatios = [
+    { value: 0, name: 'Freeform' },
     { value: 1 / 1, name: '1:1 Square' },
     { value: 4 / 3, name: '4:3 Standard' },
     { value: 16 / 9, name: '16:9 Widescreen' },
-    { value: 0, name: 'Freeform' },
+];
+
+const howToUseSteps = [
+    { title: "Step 1: Upload Image", description: "Select the image you wish to crop from your device." },
+    { title: "Step 2: Set Aspect Ratio", description: "Choose a preset aspect ratio (like Square or Widescreen) or select 'Freeform' for a custom crop." },
+    { title: "Step 3: Adjust Crop Area", description: "Drag the corners of the crop box to resize it. You can also use the zoom slider and rotation button for fine adjustments." },
+    { title: "Step 4: Crop & Download", description: "Click 'Crop Image' to see the result. If you like it, click 'Download Image'." },
+];
+
+const faqItems = [
+    { question: "What is an aspect ratio?", answer: "An aspect ratio is the proportional relationship between the width and height of an image. For example, a 1:1 ratio is a perfect square, while 16:9 is standard for HD video." },
+    { question: "Will cropping reduce my image quality?", answer: "Cropping itself doesn't reduce quality, but it does reduce the number of pixels in your image. If you crop a small section from a large image and then enlarge it, it may appear blurry." },
+    { question: "Can I undo a crop?", answer: "If you don't like the result, you can simply click the 'Reset' (X) button on the image preview to start over with the original photo." },
+    { question: "Is this service private?", answer: "Yes. All cropping is performed in your browser. Your images are never uploaded to any server, ensuring your data remains private." },
 ];
 
 
@@ -96,6 +112,8 @@ export default function CropPage() {
             showReset={hasImage}
             hideUpload={hasImage}
             processedImage={processedImage}
+            howToUse={<HowToUse steps={howToUseSteps} />}
+            faq={<Faq items={faqItems} />}
             imageContainerChildren={
                 hasImage && !processedImage && (
                     <div className="relative w-full h-full min-h-[400px] md:min-h-[500px] bg-muted/30 rounded-lg flex flex-col">
