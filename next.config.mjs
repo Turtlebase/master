@@ -1,21 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: false,
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
   },
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'placehold.co',
-        port: '',
-        pathname: '/**',
-      },
-    ],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
   },
 };
 
