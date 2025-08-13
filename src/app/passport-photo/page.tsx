@@ -12,9 +12,9 @@ import { getCroppedImg } from './cropUtils';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
 import { cn } from '@/lib/utils';
-import removeBackground from "@imgly/background-removal";
 import Cropper from 'react-easy-crop';
 import { Slider } from '@/components/ui/slider';
+import { removeBackground } from '@/ai/flows/remove-background-flow';
 
 
 const passportOptions = {
@@ -34,16 +34,16 @@ const backgroundColors = [
 
 const howToUseSteps = [
     { title: "Step 1: Upload Your Headshot", description: "Choose a clear, recent photo of yourself against any background." },
-    { title: "Step 2: AI Background Removal", description: "The tool will automatically remove the background. This can take a moment on the first use as the AI model loads." },
+    { title: "Step 2: AI Background Removal", description: "The tool will automatically remove the background. This can take a moment." },
     { title: "Step 3: Position Your Photo", description: "Use the zoom and rotation controls to position your head correctly within the frame. Official guidelines often require your head to be centered and a certain size." },
     { title: "Step 4: Select Format & Background", description: "Pick the document type and choose a background color from the palette." },
     { title: "Step 5: Generate & Download", description: "Click 'Generate Photo' to create the final image, then click 'Download Photo' to save it." },
 ];
 
 const faqItems = [
-    { question: "How does the background removal work?", answer: "This tool uses a browser-based AI to automatically detect the subject and remove the background. For best results, use a clear image. All processing happens on your device." },
+    { question: "How does the background removal work?", answer: "This tool uses a powerful AI to automatically detect the subject and remove the background. For best results, use a clear image." },
     { question: "Does this tool guarantee my photo will be accepted?", answer: "This tool helps you meet the size, composition, and background color requirements, but it cannot check for other issues like improper lighting or incorrect facial expressions. Always double-check the official guidelines for your specific document." },
-    { question: "Are my photos kept private?", answer: "Yes. All processing is done in your browser. Your photos are never uploaded to our servers, ensuring your data is secure." },
+    { question: "Are my photos kept private?", answer: "Your photos are processed on our servers and are not stored. Please refer to our privacy policy for more details." },
 ];
 
 export default function PassportPhotoPage() {
@@ -76,20 +76,15 @@ export default function PassportPhotoPage() {
         if (image) {
             setIsProcessing(true);
             try {
-                const resultBlob = await removeBackground(image, {
-                     onProgress: (progress) => {
-                        console.log(`Loading model: ${progress.toFixed(2)}%`);
-                        toast({
-                            title: "Initializing AI...",
-                            description: `The background removal model is loading: ${progress.toFixed(0)}%`,
-                        });
-                    },
-                });
-                const resultUrl = URL.createObjectURL(resultBlob);
+                const result = await removeBackground({ image_file_b64: image.split(',')[1] });
+                 if (result.error) {
+                    throw new Error(result.error);
+                }
+                const resultUrl = `data:image/png;base64,${result.image_file_b64}`;
                 setImageWithBgRemoved(resultUrl);
-            } catch (error) {
-                 toast({ variant: "destructive", title: "Background Removal Failed", description: "Could not automatically remove background. Please try a different photo." });
-                 setImageWithBgRemoved(image);
+            } catch (error: any) {
+                 toast({ variant: "destructive", title: "Background Removal Failed", description: error.message || "Could not automatically remove background." });
+                 setImageWithBgRemoved(image); // Fallback to original if server fails
             } finally {
                 setIsProcessing(false);
             }

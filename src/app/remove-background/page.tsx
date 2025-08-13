@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
@@ -43,19 +43,13 @@ export default function RemoveBackgroundPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [bgColor, setBgColor] = useState('transparent');
 
-    const handleImageUpload = async (image: string | null) => {
-        if (!image) {
-            setOriginalImage(null);
-            setImageWithTransparentBg(null);
-            setProcessedImage(null);
-            return;
-        }
+    const removeAndDisplayImage = useCallback(async (image: string) => {
+        setIsProcessing(true);
         setOriginalImage(image);
         setImageWithTransparentBg(null);
         setProcessedImage(null);
         setBgColor('transparent');
-        setIsProcessing(true);
-
+        
         try {
             const result = await removeBackground({ image_file_b64: image.split(',')[1] });
             if (result.error) {
@@ -75,10 +69,23 @@ export default function RemoveBackgroundPage() {
         } finally {
             setIsProcessing(false);
         }
+    }, [toast]);
+
+    const handleImageUpload = (image: string | null) => {
+        if (!image) {
+            setOriginalImage(null);
+            setImageWithTransparentBg(null);
+            setProcessedImage(null);
+            return;
+        }
+        removeAndDisplayImage(image);
     }
     
     const applyBackgroundColor = useCallback(() => {
-        if (!imageWithTransparentBg) return;
+        if (!imageWithTransparentBg) {
+             if (originalImage) setProcessedImage(originalImage);
+            return;
+        };
 
         if (bgColor === 'transparent') {
             setProcessedImage(imageWithTransparentBg);
@@ -100,12 +107,12 @@ export default function RemoveBackgroundPage() {
             }
         };
         img.src = imageWithTransparentBg;
-    }, [imageWithTransparentBg, bgColor]);
+    }, [imageWithTransparentBg, bgColor, originalImage]);
 
-    const handleBgColorChange = (color: string) => {
-        setBgColor(color);
+
+    useEffect(() => {
         applyBackgroundColor();
-    }
+    }, [imageWithTransparentBg, bgColor, applyBackgroundColor]);
     
     const handleDownload = () => {
         if (!processedImage) return;
@@ -140,7 +147,7 @@ export default function RemoveBackgroundPage() {
                                 {backgroundColors.map(color => (
                                     <button
                                         key={color.name}
-                                        onClick={() => handleBgColorChange(color.value)}
+                                        onClick={() => setBgColor(color.value)}
                                         className={cn(
                                             "w-8 h-8 rounded-full border-2 transition-all disabled:opacity-50",
                                             bgColor === color.value ? 'border-primary scale-110' : 'border-border',
