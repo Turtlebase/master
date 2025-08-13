@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from 'react';
@@ -33,7 +34,7 @@ export default function DslrBlurPage() {
     
     const [blurIntensity, setBlurIntensity] = useState(10);
     
-    const imageRef = useRef<HTMLImageElement>(null);
+    const imageRef = useRef<HTMLImageElement | null>(null);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
 
     const [isSelecting, setIsSelecting] = useState(false);
