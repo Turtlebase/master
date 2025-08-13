@@ -56,6 +56,8 @@ export default function DslrBlurPage() {
             image.onload = () => {
                 imageRef.current = image;
             }
+        } else {
+            imageRef.current = null;
         }
     };
 
