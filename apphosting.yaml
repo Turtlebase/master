@@ -5,10 +5,13 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  # Set the max body size to 10MB to allow for large image uploads to AI flows.
+  maxBodySizeBytes: 10485760
 rewrites:
   - source: "/api/genkit/**"
     run:
       region: "us-central1"
       serviceId: "default"
       pinned: true
+
 
