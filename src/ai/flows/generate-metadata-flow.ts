@@ -36,6 +36,7 @@ const prompt = ai.definePrompt({
   name: 'generateMetadataPrompt',
   input: {schema: GenerateMetadataInputSchema},
   output: {schema: GenerateMetadataOutputSchema},
+  model: 'googleai/gemini-2.0-flash-preview',
   prompt: `You are an expert SEO and digital marketing specialist. Your task is to analyze the provided image and generate metadata that will maximize its online visibility.
 
 Analyze the image provided and generate the following:

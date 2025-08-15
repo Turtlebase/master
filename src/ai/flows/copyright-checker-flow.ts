@@ -39,6 +39,7 @@ const prompt = ai.definePrompt({
   name: 'copyrightCheckPrompt',
   input: {schema: CopyrightCheckInputSchema},
   output: {schema: CopyrightCheckOutputSchema},
+  model: 'googleai/gemini-2.0-flash-preview',
   prompt: `You are a world-class expert in copyright and intellectual property law, with a specialization in visual media. Your task is to analyze an image and provide a copyright risk assessment.
 
 You must identify any logos, characters, famous artworks, proprietary designs, or other protected elements. Based on your findings, you will determine a risk level and explain your reasoning.
