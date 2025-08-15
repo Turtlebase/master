@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   description:
     "Edit, sketch, resize, crop, and enhance your images with our suite of free, professional-grade online tools. No signup, no watermarks, 100% free.",
-  keywords: ["image editor", "free tools", "image compressor", "image resizer", "background blur", "tattoo stencil", "coloring page", "passport photo", "image crop", "online image editor"],
+  keywords: ["image editor", "free tools", "image compressor", "image resizer", "background blur", "tattoo stencil", "coloring page", "passport photo", "image crop", "online image editor", "ai image tools", "background remover", "seo metadata generator", "copyright checker"],
   robots: {
     index: true,
     follow: true,

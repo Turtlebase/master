@@ -1,8 +1,13 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Privacy Policy for ImageCon.pro. We are committed to protecting your privacy. We do not store any user-uploaded images.',
+  description: 'Privacy Policy for ImageCon.pro. We are committed to protecting your privacy. We do not store any user-uploaded images for most tools. See policy for AI tool details.',
+  robots: {
+    index: true,
+    follow: true,
+  }
 };
 
 export default function PrivacyPolicyPage() {
@@ -16,13 +21,30 @@ export default function PrivacyPolicyPage() {
           ImageCon.pro ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle information when you use our website and services (the "Services").
         </p>
 
-        <h2>1. No Data Collection or Storage</h2>
+        <h2>1. Information Handling</h2>
+        <p>Our tools can be separated into two categories regarding data handling:</p>
+        
+        <h3>A. Client-Side Tools (No Uploads)</h3>
         <p>
-          The core of our service is privacy. We do not collect, store, or transmit any personal data or any images you upload to our servers. All image processing is performed directly in your web browser (client-side).
+          The vast majority of our tools (including the Resizer, Cropper, Filter Applicator, Compressor, Coloring Page Converter, and Tattoo Stencil Maker) operate entirely within your web browser. 
         </p>
+        <ul>
+            <li>We do **not** collect, store, or transmit any images you use with these tools.</li>
+            <li>Your images **never** leave your computer.</li>
+            <li>Once you close your browser tab, the image data is gone.</li>
+        </ul>
+
+        <h3>B. Server-Side AI Tools (Temporary Processing)</h3>
         <p>
-          Once you close your browser window, the image you were working on is gone. We have no access to it at any point.
+          A few of our advanced tools (AI Background Remover, AI Metadata Generator, AI Copyright Checker, Passport Photo Tool) require server-side processing to perform their function.
         </p>
+        <ul>
+            <li>To use these tools, your image is sent to our backend services and those of our AI service providers (like Google Gemini).</li>
+            <li>The images are used **solely** for the purpose of analysis and generating the result you requested.</li>
+            <li>We do **not** store your images on our servers after the processing is complete. Our AI providers may temporarily cache data for operational purposes, but do not use your images to train their models.</li>
+            <li>We do not attach any personally identifiable information to the images we process.</li>
+        </ul>
+        
 
         <h2>2. Anonymous Usage Analytics</h2>
         <p>
@@ -39,7 +61,7 @@ export default function PrivacyPolicyPage() {
 
         <h2>3. Third-Party Services (Advertising)</h2>
         <p>
-          We may use third-party advertising companies, such as Google AdSense, to serve ads when you visit our website. These companies may use information (not including your name, address, email address, or telephone number) about your visits to this and other websites in order to provide advertisements about goods and services of interest to you.
+          We may use third-party advertising companies to serve ads when you visit our website. These companies may use aggregated information about your visits to this and other websites in order to provide advertisements about goods and services of interest to you.
         </p>
 
         <h2>4. Changes to This Privacy Policy</h2>

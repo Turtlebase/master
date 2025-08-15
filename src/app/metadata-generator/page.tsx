@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Button } from '@/components/ui/button';
 import { Copy, Sparkles, Wand2 } from 'lucide-react';
@@ -15,6 +15,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { Metadata } from 'next';
+
+// export const metadata: Metadata = {
+//   title: 'AI Image Metadata Generator',
+//   description: 'Generate SEO-optimized titles, descriptions, and tags for your images for free. Boost your online visibility with AI.',
+// };
 
 const howToUseSteps = [
     { title: "Step 1: Upload Your Image", description: "Select the photo you want to generate metadata for. The AI will analyze the image's content." },
@@ -35,6 +41,10 @@ export default function MetadataGeneratorPage() {
     const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [generatedData, setGeneratedData] = useState<GenerateMetadataOutput | null>(null);
+
+    useEffect(() => {
+        document.title = "AI Image Metadata Generator | ImageCon.pro";
+    }, []);
 
     const handleImageUpload = (image: string | null) => {
         setOriginalImage(image);
@@ -82,7 +92,7 @@ export default function MetadataGeneratorPage() {
     return (
         <ToolLayout
             title="AI Image Metadata Generator"
-            description="Generate SEO-optimized titles, descriptions, and tags for your images."
+            description="Generate SEO-optimized titles, descriptions, and tags for your images for free. Boost your online visibility with AI."
             onImageUpload={handleImageUpload}
             isProcessing={false}
             showReset={hasImage}

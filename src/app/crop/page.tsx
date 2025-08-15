@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, CropIcon, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
@@ -12,6 +12,12 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Faq } from '@/components/faq';
 import { HowToUse } from '@/components/how-to-use';
+import type { Metadata } from 'next';
+
+// export const metadata: Metadata = {
+//   title: 'Online Image Cropper',
+//   description: 'Crop images online for free. Use presets like square and widescreen, or crop freely. Features include zoom and rotation for precise editing.',
+// };
 
 const aspectRatios = [
     { value: 0, name: 'Freeform' },
@@ -46,6 +52,10 @@ export default function CropPage() {
     const [rotation, setRotation] = useState(0);
     const [aspect, setAspect] = useState<number>(aspectRatios[0].value);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
+    useEffect(() => {
+        document.title = "Online Image Cropper | ImageCon.pro";
+    }, []);
 
     const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
         setCroppedAreaPixels(croppedAreaPixels);

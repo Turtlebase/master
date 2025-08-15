@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,12 @@ import { Download, Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Faq } from '@/components/faq';
 import { HowToUse } from '@/components/how-to-use';
+import type { Metadata } from 'next';
+
+// export const metadata: Metadata = {
+//   title: 'Free Image Resizer',
+//   description: 'Quickly resize any image to your specified dimensions in pixels. Maintain aspect ratio to prevent distortion. Free, fast, and secure online tool.',
+// };
 
 const howToUseSteps = [
     { title: "Step 1: Upload an Image", description: "Select the image you want to resize." },
@@ -37,6 +44,10 @@ export default function ResizePage() {
     const [originalDimensions, setOriginalDimensions] = useState<{w: number, h: number} | null>(null);
     
     const aspectRatio = useRef<number>(1);
+
+    useEffect(() => {
+        document.title = "Free Image Resizer | ImageCon.pro";
+    }, []);
 
     const handleImageUpload = (image: string | null) => {
         setOriginalImage(image);
@@ -132,7 +143,7 @@ export default function ResizePage() {
     return (
         <ToolLayout
             title="Image Resizer"
-            description="Quickly resize any image to your specified dimensions."
+            description="Quickly resize any image to your specified dimensions. Maintain aspect ratio to prevent distortion. Free, fast, and secure online tool."
             onImageUpload={handleImageUpload}
             processedImage={processedImage || originalImage}
             isProcessing={isProcessing}

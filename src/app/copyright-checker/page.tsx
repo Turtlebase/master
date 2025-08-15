@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Button } from '@/components/ui/button';
 import { AlertCircle, ShieldCheck, Sparkles, Wand2 } from 'lucide-react';
@@ -14,6 +14,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import type { Metadata } from 'next';
+
+// export const metadata: Metadata = {
+//   title: 'AI Copyright Checker for Images',
+//   description: 'Get a free AI-powered copyright risk assessment for your images. Our tool checks for logos, characters, and other protected elements to help you avoid issues.',
+// };
 
 const howToUseSteps = [
     { title: "Step 1: Upload Your Image", description: "Select the photo you want to check for potential copyright issues." },
@@ -55,6 +61,10 @@ export default function CopyrightCheckerPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [generatedData, setGeneratedData] = useState<CopyrightCheckOutput | null>(null);
 
+     useEffect(() => {
+        document.title = "AI Copyright Checker for Images | ImageCon.pro";
+    }, []);
+
     const handleImageUpload = (image: string | null) => {
         setOriginalImage(image);
         setGeneratedData(null);
@@ -85,7 +95,7 @@ export default function CopyrightCheckerPage() {
     return (
         <ToolLayout
             title="AI Copyright Risk Assessment"
-            description="Analyze an image for logos, characters, and other potential copyright risks."
+            description="Get a free AI-powered copyright risk assessment for your images. Our tool checks for logos, characters, and other protected elements to help you avoid issues."
             onImageUpload={handleImageUpload}
             isProcessing={false}
             showReset={hasImage}

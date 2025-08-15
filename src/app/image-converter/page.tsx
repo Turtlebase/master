@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,12 @@ import { useToast } from '@/hooks/use-toast';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
 import { Card, CardContent } from '@/components/ui/card';
+import type { Metadata } from 'next';
+
+// export const metadata: Metadata = {
+//   title: 'Free Online Image Converter',
+//   description: 'Convert images to JPG, PNG, WebP, BMP, and GIF for free. Our easy-to-use online tool is fast, private, and requires no software installation.',
+// };
 
 const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -54,6 +60,10 @@ export default function ImageConverterPage() {
     const [convertedSize, setConvertedSize] = useState<number | null>(null);
 
     const imageRef = useRef<HTMLImageElement | null>(null);
+
+    useEffect(() => {
+        document.title = "Free Online Image Converter | ImageCon.pro";
+    }, []);
     
     const handleImageUpload = (image: string | null, file: File | null) => {
         if (image && file) {
@@ -145,7 +155,7 @@ export default function ImageConverterPage() {
     return (
         <ToolLayout
             title="Image Converter"
-            description="Convert your images to JPG, PNG, WebP, and more."
+            description="Convert images to JPG, PNG, WebP, BMP, and GIF for free. Our easy-to-use online tool is fast, private, and requires no software installation."
             onImageUpload={(img, file) => handleImageUpload(img, file)}
             processedImage={processedImage}
             isProcessing={isProcessing}

@@ -26,30 +26,35 @@ export default function TermsOfServicePage() {
         <p>You agree not to use the Services to:</p>
         <ul>
           <li>Process any content that is illegal, harmful, threatening, abusive, harassing, defamatory, vulgar, obscene, or otherwise objectionable.</li>
-          <li>Infringe upon the intellectual property rights of others.</li>
+          <li>Infringe upon the intellectual property rights of others. You must have the legal right to use any images you process with our tools.</li>
           <li>Attempt to gain unauthorized access to our systems or engage in any activity that disrupts, diminishes the quality of, interferes with the performance of, or impairs the functionality of the Services.</li>
         </ul>
 
-        <h2>3. Disclaimer of Warranties</h2>
+        <h2>3. AI-Powered Tools Disclaimer</h2>
+        <p>
+          Some of our tools use artificial intelligence. While powerful, AI can make mistakes. The output from tools like the AI Copyright Checker and Metadata Generator is for informational purposes only and is not a substitute for professional legal or SEO advice. You are responsible for verifying the accuracy and appropriateness of any AI-generated content.
+        </p>
+
+        <h2>4. Disclaimer of Warranties</h2>
         <p>
           The Services are provided "as is" and "as available" without any warranties of any kind, express or implied. We do not warrant that the Services will be uninterrupted, error-free, or completely secure. You use the Services at your own risk.
         </p>
 
-        <h2>4. Limitation of Liability</h2>
+        <h2>5. Limitation of Liability</h2>
         <p>
           To the fullest extent permitted by law, ImageCon.pro shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, resulting from your use of the Services.
         </p>
         
-        <h2>5. Intellectual Property</h2>
+        <h2>6. Intellectual Property</h2>
         <p>
           We do not claim ownership of the content you process through our Services. You retain all rights to your images. We own all rights to the website, design, and the underlying technology of the Services.
         </p>
 
-        <h2>6. Changes to Terms</h2>
+        <h2>7. Changes to Terms</h2>
         <p>
           We reserve the right to modify these Terms at any time. We will post the revised Terms on this page. By continuing to use the Services after the changes become effective, you agree to the revised Terms.
         </p>
-         <h2>7. Contact</h2>
+         <h2>8. Contact</h2>
         <p>
           If you have any questions about these Terms, please see our <Link href="/contact">Contact Page</Link>.
         </p>

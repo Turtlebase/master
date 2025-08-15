@@ -1,12 +1,19 @@
+
 "use client";
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Button } from "@/components/ui/button";
 import { Download, Undo2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Faq } from '@/components/faq';
 import { HowToUse } from '@/components/how-to-use';
+import type { Metadata } from 'next';
+
+// export const metadata: Metadata = {
+//   title: 'Free Image Filters',
+//   description: 'Apply classic and artistic filters to your photos for free. Instantly add effects like Grayscale, Sepia, Invert, and Vintage to any image.',
+// };
 
 type FilterType = 'grayscale' | 'sepia' | 'invert' | 'vintage' | null;
 
@@ -56,6 +63,10 @@ export default function FiltersPage() {
     const [processedImage, setProcessedImage] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState<FilterType>(null);
     const imageRef = useRef<HTMLImageElement | null>(null);
+
+    useEffect(() => {
+        document.title = "Free Image Filters | ImageCon.pro";
+    }, []);
 
     const handleImageUpload = (image: string | null) => {
         setOriginalImage(image);

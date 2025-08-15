@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
@@ -9,6 +10,12 @@ import { Download, Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
+import type { Metadata } from 'next';
+
+// export const metadata: Metadata = {
+//   title: 'Coloring Book Page Converter',
+//   description: 'Turn any photo into a printable coloring book page for free. Convert your images to line art with adjustable settings and download instantly.',
+// };
 
 declare global {
     var cv: any;
@@ -41,6 +48,7 @@ export default function ColoringConverterPage() {
     const [isCvReady, setIsCvReady] = useState(false);
 
     useEffect(() => {
+        document.title = "Coloring Book Page Converter | ImageCon.pro";
         const scriptId = 'opencv-script';
         if (document.getElementById(scriptId)) {
             setIsCvReady(!!window.cv);
@@ -145,7 +153,7 @@ export default function ColoringConverterPage() {
     return (
         <ToolLayout
             title="Coloring Book Converter"
-            description="Turn any image into a line-art sketch, ready to be colored in."
+            description="Turn any photo into a printable coloring book page for free. Convert your images to line art with adjustable settings and download instantly."
             onImageUpload={handleImageUpload}
             processedImage={processedImage}
             isProcessing={isProcessing}
