@@ -24,6 +24,8 @@ const conversionOptions = [
     { value: 'png', label: 'PNG', mime: 'image/png' },
     { value: 'jpeg', label: 'JPG', mime: 'image/jpeg' },
     { value: 'webp', label: 'WebP', mime: 'image/webp' },
+    { value: 'bmp', label: 'BMP', mime: 'image/bmp' },
+    { value: 'gif', label: 'GIF', mime: 'image/gif' },
 ];
 
 const howToUseSteps = [
