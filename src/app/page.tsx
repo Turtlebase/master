@@ -1,6 +1,8 @@
 import { ToolCard } from '@/components/tool-card';
 import { Button } from '@/components/ui/button';
 import * as Icons from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 type Tool = {
@@ -28,19 +30,36 @@ const tools: Tool[] = [
 export default function Home() {
   return (
     <div className="animate-fade-in-up">
-      <section className="text-center py-20 md:py-32">
+      <section className="relative overflow-hidden text-center py-20 md:py-28">
+         <div className="absolute top-0 left-0 -z-10 h-full w-full bg-grid-white/[0.05]" />
+         <div className="absolute pointer-events-none inset-0 flex items-center justify-center bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
+
         <div className="container mx-auto px-4">
-          <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-r from-primary via-blue-400 to-blue-500 text-transparent bg-clip-text">
-            Ultimate Free Image Toolbox
+          <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-br from-primary via-blue-400 to-blue-500 bg-clip-text text-transparent">
+            Your Ultimate Free Image Toolbox
           </h1>
           <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground">
-            Edit, sketch, resize, crop, and enhance your images. 100% free, no signup, no watermarks.
+            Unleash your creativity with a full suite of professional-grade image editing tools. 100% free, private, and no signup required.
           </p>
           <div className="mt-10">
-            <Button asChild size="lg" className="font-semibold text-lg py-7 px-10 shadow-[0_0_20px_theme(colors.primary/30%)] hover:shadow-[0_0_30px_theme(colors.primary/50%)] transition-all duration-300 transform hover:scale-105">
-              <Link href="#tools">Explore Tools</Link>
+            <Button asChild size="lg" className="font-semibold text-lg py-7 px-10 shadow-[0_0_30px_theme(colors.primary/40%)] hover:shadow-[0_0_40px_theme(colors.primary/60%)] transition-all duration-300 transform hover:scale-105">
+              <Link href="#tools">Explore All Tools</Link>
             </Button>
           </div>
+           <div className="mt-12 flex justify-center items-center flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                <span>100% Free, No Watermarks</span>
+              </div>
+              <div className="flex items-center gap-2">
+                 <CheckCircle className="w-4 h-4 text-green-500" />
+                <span>Client-Side for Privacy</span>
+              </div>
+               <div className="flex items-center gap-2">
+                 <CheckCircle className="w-4 h-4 text-green-500" />
+                <span>No Signup Required</span>
+              </div>
+            </div>
         </div>
       </section>
 
