@@ -34,7 +34,7 @@ export default function DslrBlurPage() {
     
     const [blurIntensity, setBlurIntensity] = useState(10);
     
-    const imageRef = useRef<HTMLImageElement | null>(null);
+    const imageRef = useRef<HTMLImageElement>(new Image());
     const canvasContainerRef = useRef<HTMLDivElement>(null);
 
     const [isSelecting, setIsSelecting] = useState(false);
@@ -51,18 +51,13 @@ export default function DslrBlurPage() {
         setProcessedImage(img); 
         setSelectionRect(null);
         if (img) {
-            const image = new Image();
-            image.src = img;
-            image.onload = () => {
-                imageRef.current = image;
-            }
-        } else {
-            imageRef.current = null;
+            // The ref's current property is directly mutated.
+            imageRef.current.src = img;
         }
     };
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!imageRef.current || isProcessing) return;
+        if (!originalImage || isProcessing) return;
         setIsSelecting(true);
         const rect = e.currentTarget.getBoundingClientRect();
         setStartPoint({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -71,7 +66,7 @@ export default function DslrBlurPage() {
     };
     
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!isSelecting || !startPoint || !imageRef.current) return;
+        if (!isSelecting || !startPoint || !originalImage) return;
     
         const rect = e.currentTarget.getBoundingClientRect();
         const currentX = e.clientX - rect.left;
@@ -91,7 +86,7 @@ export default function DslrBlurPage() {
     };
 
     const processImage = useCallback(() => {
-        if (!originalImage || !imageRef.current || !selectionRect) {
+        if (!originalImage || !selectionRect) {
             return;
         }
 
@@ -103,7 +98,9 @@ export default function DslrBlurPage() {
 
         processTimeoutRef.current = setTimeout(() => {
             try {
-                const img = imageRef.current!;
+                const img = imageRef.current;
+                if (!img.src || !canvasContainerRef.current) return;
+
                 const canvas = document.createElement('canvas');
                 canvas.width = img.naturalWidth;
                 canvas.height = img.naturalHeight;

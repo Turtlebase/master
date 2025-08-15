@@ -83,8 +83,9 @@ export default function PassportPhotoPage() {
                 const resultUrl = `data:image/png;base64,${result.image_file_b64}`;
                 setImageWithBgRemoved(resultUrl);
             } catch (error: any) {
-                 toast({ variant: "destructive", title: "Background Removal Failed", description: error.message || "Could not automatically remove background." });
-                 setImageWithBgRemoved(image); // Fallback to original if server fails
+                 toast({ variant: "destructive", title: "Background Removal Failed", description: error.message || "Could not automatically remove background. The original image will be used." });
+                 // Fallback to original if server fails, but let user know.
+                 setImageWithBgRemoved(image); 
             } finally {
                 setIsProcessing(false);
             }

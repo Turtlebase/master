@@ -43,7 +43,15 @@ export default function RemoveBackgroundPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [bgColor, setBgColor] = useState('transparent');
 
-    const removeAndDisplayImage = useCallback(async (image: string) => {
+    const handleImageUpload = useCallback(async (image: string | null, file: File | null) => {
+        if (!image) {
+            setOriginalImage(null);
+            setImageWithTransparentBg(null);
+            setProcessedImage(null);
+            setIsProcessing(false);
+            return;
+        }
+
         setIsProcessing(true);
         setOriginalImage(image);
         setImageWithTransparentBg(null);
@@ -65,25 +73,17 @@ export default function RemoveBackgroundPage() {
                 title: "Processing Error",
                 description: error.message || "Could not remove background. The API may be unavailable or you may have run out of credits.",
             });
+            // Reset state completely on error
             setOriginalImage(null);
+            setImageWithTransparentBg(null);
+            setProcessedImage(null);
         } finally {
             setIsProcessing(false);
         }
     }, [toast]);
-
-    const handleImageUpload = (image: string | null) => {
-        if (!image) {
-            setOriginalImage(null);
-            setImageWithTransparentBg(null);
-            setProcessedImage(null);
-            return;
-        }
-        removeAndDisplayImage(image);
-    }
     
     const applyBackgroundColor = useCallback(() => {
         if (!imageWithTransparentBg) {
-             if (originalImage) setProcessedImage(originalImage);
             return;
         };
 
@@ -107,7 +107,7 @@ export default function RemoveBackgroundPage() {
             }
         };
         img.src = imageWithTransparentBg;
-    }, [imageWithTransparentBg, bgColor, originalImage]);
+    }, [imageWithTransparentBg, bgColor]);
 
 
     useEffect(() => {

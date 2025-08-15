@@ -54,7 +54,7 @@ const removeBackgroundFlow = ai.defineFlow(
       formData.append('image_file_b64', input.image_file_b64);
       formData.append('size', 'auto');
 
-      const response = await fetch('https://api.remove.bg/v1/removebg', {
+      const response = await fetch('https://api.remove.bg/v1.0/removebg', {
         method: 'POST',
         headers: {
           'X-Api-Key': apiKey,

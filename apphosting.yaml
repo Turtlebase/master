@@ -11,4 +11,4 @@ rewrites:
       region: "us-central1"
       serviceId: "default"
       pinned: true
-    entrypoint: "genkit"
+
