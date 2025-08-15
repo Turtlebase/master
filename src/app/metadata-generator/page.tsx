@@ -15,12 +15,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { Metadata } from 'next';
-
-// export const metadata: Metadata = {
-//   title: 'AI Image Metadata Generator',
-//   description: 'Generate SEO-optimized titles, descriptions, and tags for your images for free. Boost your online visibility with AI.',
-// };
 
 const howToUseSteps = [
     { title: "Step 1: Upload Your Image", description: "Select the photo you want to generate metadata for. The AI will analyze the image's content." },

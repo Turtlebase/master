@@ -10,12 +10,6 @@ import { Download, Loader2, Undo2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Faq } from '@/components/faq';
 import { HowToUse } from '@/components/how-to-use';
-import type { Metadata } from 'next';
-
-// export const metadata: Metadata = {
-//   title: 'DSLR Blur Effect (Background Blur)',
-//   description: "Create a professional DSLR-style blur effect online for free. Select your subject to make it pop with a beautifully blurred background, just like portrait mode.",
-// };
 
 const howToUseSteps = [
     { title: "Step 1: Upload Your Image", description: "Click the upload area and select the photo you want to edit." },

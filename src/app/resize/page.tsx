@@ -11,12 +11,6 @@ import { Download, Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Faq } from '@/components/faq';
 import { HowToUse } from '@/components/how-to-use';
-import type { Metadata } from 'next';
-
-// export const metadata: Metadata = {
-//   title: 'Free Image Resizer',
-//   description: 'Quickly resize any image to your specified dimensions in pixels. Maintain aspect ratio to prevent distortion. Free, fast, and secure online tool.',
-// };
 
 const howToUseSteps = [
     { title: "Step 1: Upload an Image", description: "Select the image you want to resize." },

@@ -11,7 +11,7 @@ export default function Header() {
           <div className="bg-primary p-2 rounded-lg">
             <Brush className="h-6 w-6 text-primary-foreground" />
           </div>
-          <span className="hidden sm:inline-block">ImageCon.pro</span>
+          <span>ImageCon.pro</span>
         </Link>
         <div className="ml-auto flex items-center gap-2">
            <Button variant="ghost" asChild>

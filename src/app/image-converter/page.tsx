@@ -11,12 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
 import { Card, CardContent } from '@/components/ui/card';
-import type { Metadata } from 'next';
-
-// export const metadata: Metadata = {
-//   title: 'Free Online Image Converter',
-//   description: 'Convert images to JPG, PNG, WebP, BMP, and GIF for free. Our easy-to-use online tool is fast, private, and requires no software installation.',
-// };
 
 const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';

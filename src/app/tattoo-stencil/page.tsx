@@ -10,13 +10,6 @@ import { Download, Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
-import type { Metadata } from 'next';
-
-// export const metadata: Metadata = {
-//   title: 'Tattoo Stencil Maker',
-//   description: 'Convert any photo or design into a clean, black and white tattoo stencil for free. Adjust detail and line strength to create the perfect outline for your tattoo.',
-// };
-
 
 declare global {
     var cv: any;

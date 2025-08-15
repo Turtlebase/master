@@ -11,14 +11,6 @@ import { Faq } from '@/components/faq';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { removeBackground } from '@/ai/flows/remove-background-flow';
-import type { Metadata } from 'next';
-
-// This is a client component, but we can still export metadata
-// export const metadata: Metadata = {
-//   title: 'AI Background Remover',
-//   description: 'Automatically remove the background from any image with a single click using our free AI-powered tool. Add a new color, or upload your own background.',
-// };
-
 
 const backgroundOptions = [
     { name: 'Transparent', value: 'transparent' },

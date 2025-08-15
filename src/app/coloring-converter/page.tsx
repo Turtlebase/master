@@ -10,12 +10,6 @@ import { Download, Loader2, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
-import type { Metadata } from 'next';
-
-// export const metadata: Metadata = {
-//   title: 'Coloring Book Page Converter',
-//   description: 'Turn any photo into a printable coloring book page for free. Convert your images to line art with adjustable settings and download instantly.',
-// };
 
 declare global {
     var cv: any;

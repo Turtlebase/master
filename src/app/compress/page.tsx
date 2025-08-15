@@ -11,13 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
-import type { Metadata } from 'next';
-
-// export const metadata: Metadata = {
-//   title: 'Free Image Compressor (JPG, PNG, WebP)',
-//   description: 'Reduce image file size online for free. Compress JPG, PNG, and WebP images with an interactive quality preview to find the perfect balance.',
-// };
-
 
 const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';

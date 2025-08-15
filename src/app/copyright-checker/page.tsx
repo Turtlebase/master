@@ -14,12 +14,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import type { Metadata } from 'next';
-
-// export const metadata: Metadata = {
-//   title: 'AI Copyright Checker for Images',
-//   description: 'Get a free AI-powered copyright risk assessment for your images. Our tool checks for logos, characters, and other protected elements to help you avoid issues.',
-// };
 
 const howToUseSteps = [
     { title: "Step 1: Upload Your Image", description: "Select the photo you want to check for potential copyright issues." },

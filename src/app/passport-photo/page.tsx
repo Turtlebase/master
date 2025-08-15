@@ -15,12 +15,6 @@ import { cn } from '@/lib/utils';
 import Cropper from 'react-easy-crop';
 import { Slider } from '@/components/ui/slider';
 import { removeBackground } from '@/ai/flows/remove-background-flow';
-import type { Metadata } from 'next';
-
-// export const metadata: Metadata = {
-//   title: 'Free Passport Photo Tool',
-//   description: 'Create compliant passport, visa, or ID photos for free. Our AI tool automatically removes the background and helps you format the photo for US, UK, India, and Schengen Area requirements.',
-// };
 
 
 const passportOptions = {
