@@ -30,6 +30,7 @@ const backgroundColors = [
     { name: 'White', value: '#FFFFFF' },
     { name: 'Light Blue', value: '#E1F5FE' },
     { name: 'Gray', value: '#F5F5F5' },
+    { name: 'Black', value: '#000000' },
 ];
 
 const howToUseSteps = [
