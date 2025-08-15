@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import ToolLayout from "@/components/tool-layout";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,7 +30,9 @@ const backgroundColors = [
     { name: 'White', value: '#FFFFFF' },
     { name: 'Light Blue', value: '#E1F5FE' },
     { name: 'Gray', value: '#F5F5F5' },
-    { name: 'Black', value: '#000000' },
+    { name: 'Red', value: '#dc2626' },
+    { name: 'Blue', value: '#2563eb' },
+    { name: 'Purple', value: '#7c3aed' },
 ];
 
 const howToUseSteps = [
@@ -53,6 +55,7 @@ export default function PassportPhotoPage() {
     const [imageWithBgRemoved, setImageWithBgRemoved] = useState<string | null>(null);
     const [processedImage, setProcessedImage] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
     
     const [format, setFormat] = useState<PassportKey>('us');
     const [bgColor, setBgColor] = useState<string>('#FFFFFF');
@@ -95,10 +98,9 @@ export default function PassportPhotoPage() {
     
     const processImage = useCallback(async () => {
         if (!imageWithBgRemoved || !croppedAreaPixels) {
-             toast({ variant: "destructive", title: "Error", description: "Please upload an image and position it." });
             return;
         }
-        setIsProcessing(true);
+        setIsGenerating(true);
         try {
             const currentFormat = passportOptions[format];
             const croppedImage = await getCroppedImg(
@@ -114,9 +116,16 @@ export default function PassportPhotoPage() {
             console.error(e);
             toast({ variant: "destructive", title: "Processing Error", description: "Could not process the image." });
         } finally {
-            setIsProcessing(false);
+            setIsGenerating(false);
         }
-    }, [imageWithBgRemoved, croppedAreaPixels, rotation, toast, format, bgColor]);
+    }, [imageWithBgRemoved, croppedAreaPixels, rotation, format, bgColor, toast]);
+
+    useEffect(() => {
+        if (processedImage) {
+            processImage();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [bgColor]);
 
     const handleDownload = () => {
         if (!processedImage) return;
@@ -199,7 +208,7 @@ export default function PassportPhotoPage() {
                         
                         <div className="space-y-2">
                             <Label>Background Color</Label>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-wrap">
                                 {backgroundColors.map(color => (
                                     <button
                                         key={color.name}
@@ -218,15 +227,15 @@ export default function PassportPhotoPage() {
 
                          <div className="flex flex-col gap-4 !mt-8">
                             <Button onClick={processImage} disabled={isProcessing || !!processedImage || !imageWithBgRemoved}>
-                                {isProcessing && !imageWithBgRemoved ? (
+                                {isProcessing ? (
                                     <Loader2 className="animate-spin" />
                                 ) : (
-                                    <Sparkles/>
+                                    isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles/>
                                 )}
-                                {isProcessing && !imageWithBgRemoved ? 'Removing Background...' : 'Generate Photo'}
+                                {isProcessing ? 'Removing Background...' : (isGenerating ? 'Generating...' : 'Generate Photo')}
                             </Button>
                            {processedImage && (
-                                <Button onClick={handleDownload} disabled={isProcessing} variant="secondary">
+                                <Button onClick={handleDownload} disabled={isProcessing || isGenerating} variant="secondary">
                                     <Download/>
                                     Download Photo
                                 </Button>
