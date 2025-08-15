@@ -13,6 +13,7 @@ type Tool = {
 const tools: Tool[] = [
   { name: 'AI Background Remover', description: 'Automatically remove the background from any image with a single click.', href: '/remove-background', icon: 'Sparkles' },
   { name: 'AI Metadata Generator', description: 'Generate SEO-optimized titles, descriptions, and tags for your images.', href: '/metadata-generator', icon: 'FileText' },
+  { name: 'AI Copyright Checker', description: 'Analyze images for potential copyright risks and get a risk assessment.', href: '/copyright-checker', icon: 'ShieldCheck' },
   { name: 'Tattoo Stencil Maker', description: 'Convert photos into detailed black and white stencils, perfect for tattoos.', href: '/tattoo-stencil', icon: 'Scissors' },
   { name: 'Coloring Book Converter', description: 'Turn any image into a line-art sketch, ready to be colored in.', href: '/coloring-converter', icon: 'Palette' },
   { name: 'Passport Photo Tool', description: 'Create compliant passport photos with AI background removal.', href: '/passport-photo', icon: 'UserSquare' },
