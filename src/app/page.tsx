@@ -15,6 +15,7 @@ const tools: Tool[] = [
   { name: 'Tattoo Stencil Maker', description: 'Convert photos into detailed black and white stencils, perfect for tattoos.', href: '/tattoo-stencil', icon: 'Scissors' },
   { name: 'Coloring Book Converter', description: 'Turn any image into a line-art sketch, ready to be colored in.', href: '/coloring-converter', icon: 'Palette' },
   { name: 'Passport Photo Tool', description: 'Create compliant passport photos with AI background removal.', href: '/passport-photo', icon: 'UserSquare' },
+  { name: 'Image Converter', description: 'Convert images to different formats like JPG, PNG, and WebP.', href: '/image-converter', icon: 'FileImage' },
   { name: 'DSLR Blur', description: 'Apply a realistic background blur to your photos to make subjects pop.', href: '/blur-background', icon: 'Droplets' },
   { name: 'Image Resizer', description: 'Quickly resize any image to your specified dimensions.', href: '/resize', icon: 'StretchHorizontal' },
   { name: 'Image Cropper', description: 'Crop images with precision using presets, rotation, and zoom.', href: '/crop', icon: 'Crop' },
