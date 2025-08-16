@@ -78,14 +78,15 @@ export default function ToolLayout({
   }
 
   const displayImage = processedImage;
+  const imageAltText = `Example image for the ${title} tool.`;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 animate-fade-in-up">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+        <header className="text-center mb-12">
             <h1 className="font-headline text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-blue-400 to-blue-500 text-transparent bg-clip-text">{title}</h1>
             <p className="mt-4 max-w-2xl mx-auto text-muted-foreground">{description}</p>
-        </div>
+        </header>
 
         <div className="space-y-12">
             {hideUpload ? null : (
@@ -125,7 +126,7 @@ export default function ToolLayout({
                             displayImage ? (
                                 <Image
                                     src={displayImage}
-                                    alt="Processed image"
+                                    alt={imageAltText}
                                     width={800}
                                     height={800}
                                     className={`rounded-lg object-contain w-full max-h-[70vh] transition-opacity duration-300 ${isProcessing ? 'opacity-20' : 'opacity-100'}`}
@@ -141,6 +142,7 @@ export default function ToolLayout({
                                 onClick={onReset}
                             >
                                 <X className="w-4 h-4" />
+                                <span className="sr-only">Reset Image</span>
                             </Button>
                         )}
                     </div>
@@ -159,7 +161,7 @@ export default function ToolLayout({
         </div>
         
         {(howToUse || faq) && (
-          <div className="max-w-4xl mx-auto mt-24">
+          <section className="max-w-4xl mx-auto mt-24">
             <div className="grid md:grid-cols-2 gap-12">
               <div>
                 {howToUse && (
@@ -178,7 +180,7 @@ export default function ToolLayout({
                  )}
               </div>
             </div>
-          </div>
+          </section>
         )}
       </div>
     </div>

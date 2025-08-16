@@ -15,7 +15,7 @@ export default function PrivacyPolicyPage() {
     <div className="container mx-auto px-4 py-12 md:py-16 animate-fade-in-up">
       <div className="max-w-4xl mx-auto prose prose-invert prose-headings:font-headline prose-headings:text-primary prose-a:text-primary">
         <h1>Privacy Policy</h1>
-        <p>Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <p>Last Updated: July 26, 2024</p>
 
         <p>
           ImageCon.pro ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle information when you use our website and services (the "Services").
