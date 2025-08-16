@@ -43,7 +43,7 @@ export default function Home() {
             Unleash your creativity with a full suite of professional-grade image editing tools. 100% free, private, and no signup required.
           </p>
           <div className="mt-10">
-            <Button asChild size="lg" className="font-semibold text-lg py-7 px-10 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all duration-300 transform hover:scale-105">
+            <Button asChild size="lg" className="font-semibold text-lg py-7 px-10 transition-all duration-300 transform hover:scale-105">
               <Link href="#tools">Explore All Tools</Link>
             </Button>
           </div>

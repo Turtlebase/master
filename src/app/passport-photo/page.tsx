@@ -12,7 +12,7 @@ import { getCroppedImg } from './cropUtils';
 import { HowToUse } from '@/components/how-to-use';
 import { Faq } from '@/components/faq';
 import { cn } from '@/lib/utils';
-import Cropper from 'react-easy-crop';
+import Cropper, { Area } from 'react-easy-crop';
 import { Slider } from '@/components/ui/slider';
 import { removeBackground } from '@/ai/flows/remove-background-flow';
 
@@ -63,13 +63,13 @@ export default function PassportPhotoPage() {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [rotation, setRotation] = useState(0);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
     useEffect(() => {
         document.title = "Free Passport Photo Tool | ImageCon.pro";
     }, []);
 
-    const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+    const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels);
     }, []);
 
