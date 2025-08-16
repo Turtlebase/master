@@ -1,5 +1,4 @@
 
-'use server';
 // IMPORTANT: This file is a convention for hosting Genkit flows on Firebase App Hosting.
 //
 // It is NOT a conventional Next.js API route that you would create for your app.
