@@ -80,7 +80,7 @@ export default function CropPage() {
                 rotation,
                 croppedAreaPixels.width,
                 croppedAreaPixels.height,
-                false
+                null
             );
             setProcessedImage(croppedImage);
         } catch (e: any) {
