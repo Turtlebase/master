@@ -140,7 +140,11 @@ export default function TattooStencilPage() {
 
     const handleImageUpload = (image: string | null) => {
         setOriginalImage(image);
-        setProcessedImage(image); 
+        if (image) {
+            setProcessedImage(image); 
+        } else {
+            setProcessedImage(null);
+        }
     }
     
     return (
