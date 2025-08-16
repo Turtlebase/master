@@ -6,7 +6,7 @@ import ToolLayout from "@/components/tool-layout";
 import { Button } from '@/components/ui/button';
 import { Download, Loader2, CropIcon, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import Cropper from 'react-easy-crop';
+import Cropper, { Area } from 'react-easy-crop';
 import { getCroppedImg } from '../passport-photo/cropUtils';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
@@ -45,13 +45,13 @@ export default function CropPage() {
     const [zoom, setZoom] = useState(1);
     const [rotation, setRotation] = useState(0);
     const [aspect, setAspect] = useState<number>(aspectRatios[0].value);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
     useEffect(() => {
         document.title = "Online Image Cropper | ImageCon.pro";
     }, []);
 
-    const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+    const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels);
     }, []);
 
