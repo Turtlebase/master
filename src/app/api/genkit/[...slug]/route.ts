@@ -4,9 +4,8 @@
 //
 // This file is used by the Genkit framework to handle requests to your flows.
 // You should not need to edit this file.
-import {createApiRoute} from 'genkitx-next';
+import {getGenkitConnection} from '@genkit-ai/googleai/server';
 import {ai} from '@/ai/genkit';
 
-export const {GET, POST} = createApiRoute({
-  ai,
-});
+const {GET, POST} = getGenkitConnection(ai);
+export {GET, POST};
