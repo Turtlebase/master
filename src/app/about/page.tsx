@@ -39,7 +39,7 @@ export default function AboutUsPage() {
                 </div>
               </div>
               <h2 className="text-2xl font-headline">Our Vision</h2>
-              <p className="text-muted-foreground">To be the web's #1 destination for quick, private, and high-quality image processing, fostering creativity for students, professionals, and hobbyists alike.</p>
+              <p className="text-muted-foreground">To be the web\'s #1 destination for quick, private, and high-quality image processing, fostering creativity for students, professionals, and hobbyists alike.</p>
             </div>
             <div className="border border-border/50 rounded-xl p-6">
                <div className="flex justify-center mb-4">
@@ -61,7 +61,7 @@ export default function AboutUsPage() {
             <li><strong>High-Quality Tools:</strong> We use advanced algorithms to ensure your results look professional every time.</li>
           </ul>
           <p>
-            Thank you for using ImageCon.pro. We're excited to see what you create!
+            Thank you for using ImageCon.pro. We\'re excited to see what you create!
           </p>
         </div>
       </div>
