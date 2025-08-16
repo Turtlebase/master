@@ -57,7 +57,6 @@ export default function RemoveBackgroundPage() {
             setImageWithTransparentBg(null);
             setProcessedImage(null);
             setCustomBg(null);
-            setIsProcessing(false);
             return;
         }
 
@@ -212,7 +211,7 @@ export default function RemoveBackgroundPage() {
 
                          <div className="flex flex-col gap-4 !mt-8">
                             <Button onClick={handleDownload} disabled={isProcessing || !processedImage} variant="secondary">
-                                <Download />
+                                {isProcessing ? <Loader2 className="animate-spin" /> : <Download />}
                                 Download Image
                             </Button>
                         </div>

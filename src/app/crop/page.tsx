@@ -83,9 +83,9 @@ export default function CropPage() {
                 false
             );
             setProcessedImage(croppedImage);
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            toast({ variant: "destructive", title: "Processing Error", description: "Could not process the image." });
+            toast({ variant: "destructive", title: "Processing Error", description: "Could not process the image. Please try again." });
         } finally {
             setIsProcessing(false);
         }
@@ -136,9 +136,9 @@ export default function CropPage() {
                             />
                         </div>
                          <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2 p-2 bg-background/50 backdrop-blur-sm rounded-lg">
-                            <Button variant="outline" size="icon" onClick={() => setZoom(z => Math.min(3, z + 0.2))}><ZoomIn/></Button>
-                            <Button variant="outline" size="icon" onClick={() => setZoom(z => Math.max(1, z - 0.2))}><ZoomOut/></Button>
-                            <Button variant="outline" size="icon" onClick={handleRotate}><RotateCw/></Button>
+                            <Button variant="outline" size="icon" onClick={() => setZoom(z => Math.min(3, z + 0.2))}><ZoomIn/><span className="sr-only">Zoom In</span></Button>
+                            <Button variant="outline" size="icon" onClick={() => setZoom(z => Math.max(1, z - 0.2))}><ZoomOut/><span className="sr-only">Zoom Out</span></Button>
+                            <Button variant="outline" size="icon" onClick={handleRotate}><RotateCw/><span className="sr-only">Rotate</span></Button>
                         </div>
                     </div>
                 )

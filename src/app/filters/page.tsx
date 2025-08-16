@@ -87,31 +87,35 @@ export default function FiltersPage() {
             return;
         }
 
-        setActiveFilter(filter);
-        const img = imageRef.current;
-        const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-             toast({ variant: "destructive", title: "Error", description: "Could not process image." });
-            return;
-        };
-
-        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        const filterFn = filterMatrix[filter];
-
-        for (let i = 0; i < data.length; i += 4) {
-            const [r, g, b] = filterFn(data[i], data[i+1], data[i+2]);
-            data[i] = r;
-            data[i + 1] = g;
-            data[i + 2] = b;
+        try {
+            setActiveFilter(filter);
+            const img = imageRef.current;
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                throw new Error("Could not create canvas context.");
+            };
+    
+            ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const filterFn = filterMatrix[filter];
+    
+            for (let i = 0; i < data.length; i += 4) {
+                const [r, g, b] = filterFn(data[i], data[i+1], data[i+2]);
+                data[i] = r;
+                data[i + 1] = g;
+                data[i + 2] = b;
+            }
+            ctx.putImageData(imageData, 0, 0);
+            setProcessedImage(canvas.toDataURL('image/png'));
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Filter Error", description: error.message || "An unexpected error occurred while applying the filter." });
+            setProcessedImage(originalImage);
+            setActiveFilter(null);
         }
-        ctx.putImageData(imageData, 0, 0);
-        setProcessedImage(canvas.toDataURL('image/png'));
-
     }, [originalImage, toast]);
 
     const handleDownload = () => {

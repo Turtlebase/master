@@ -54,8 +54,8 @@ export default function DslrBlurPage() {
         setOriginalImage(img);
         setProcessedImage(img); 
         setSelectionRect(null);
+        setBlurIntensity(10);
         if (img) {
-            // The ref's current property is directly mutated.
             imageRef.current.src = img;
         }
     };
@@ -154,6 +154,7 @@ export default function DslrBlurPage() {
     const handleResetSelection = () => {
         setSelectionRect(null);
         setProcessedImage(originalImage);
+        setBlurIntensity(10);
     }
 
     const handleDownload = () => {
@@ -167,7 +168,7 @@ export default function DslrBlurPage() {
     };
 
     const hasSelection = !!selectionRect;
-    const isReadyToDownload = processedImage !== originalImage;
+    const isReadyToDownload = processedImage !== originalImage && hasSelection;
 
     return (
         <ToolLayout
@@ -208,7 +209,7 @@ export default function DslrBlurPage() {
             {originalImage ? (
                 <div className="space-y-6">
                      <p className="text-sm text-muted-foreground">
-                        {hasSelection ? "Adjust the blur intensity slider to see the effect." : "Draw a rectangle on the image to select the area to keep in focus."}
+                        {hasSelection ? "Great! Now adjust the blur intensity slider below." : "Draw a rectangle on the image to select the area to keep in focus."}
                      </p>
                     
                     <div>
@@ -232,7 +233,7 @@ export default function DslrBlurPage() {
                            Clear Selection
                         </Button>
                         <Button onClick={handleDownload} disabled={isProcessing || !isReadyToDownload} variant="secondary">
-                            <Download />
+                            {isProcessing ? <Loader2 className="animate-spin" /> : <Download />}
                             Download Image
                         </Button>
                     </div>

@@ -95,22 +95,21 @@ export default function ResizePage() {
             const img = new Image();
             img.src = originalImage;
             img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = +width;
-                canvas.height = +height;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = +width;
+                    canvas.height = +height;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        throw new Error("Could not get canvas context");
+                    }
+                    ctx.drawImage(img, 0, 0, +width, +height);
+                    setProcessedImage(canvas.toDataURL('image/png'));
+                } catch(e: any) {
+                     toast({ variant: "destructive", title: "Error", description: e.message || "Could not process the image." });
+                } finally {
                     setIsProcessing(false);
-                    toast({
-                        variant: "destructive",
-                        title: "Error",
-                        description: "Could not process the image.",
-                    });
-                    return;
                 }
-                ctx.drawImage(img, 0, 0, +width, +height);
-                setProcessedImage(canvas.toDataURL('image/png'));
-                setIsProcessing(false);
             }
             img.onerror = () => {
                 setIsProcessing(false);
@@ -133,6 +132,8 @@ export default function ResizePage() {
         link.click();
         document.body.removeChild(link);
     };
+
+    const hasChanges = (originalDimensions?.w !== width || originalDimensions?.h !== height);
 
     return (
         <ToolLayout
@@ -172,7 +173,7 @@ export default function ResizePage() {
                     </div>
 
                     <div className="flex flex-col gap-4 !mt-8">
-                        <Button onClick={processImage} disabled={isProcessing}>
+                        <Button onClick={processImage} disabled={isProcessing || !hasChanges}>
                             {isProcessing ? <Loader2 className="animate-spin" /> : <Wand2 />}
                             Generate
                         </Button>

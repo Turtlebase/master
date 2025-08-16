@@ -74,6 +74,13 @@ export default function PassportPhotoPage() {
     }, []);
 
     const handleImageUpload = async (image: string | null) => {
+        if (!image) {
+            setOriginalImage(null);
+            setImageWithBgRemoved(null);
+            setProcessedImage(null);
+            return;
+        }
+
         setOriginalImage(image);
         setProcessedImage(null);
         setImageWithBgRemoved(null);
@@ -81,27 +88,25 @@ export default function PassportPhotoPage() {
         setZoom(1);
         setRotation(0);
 
-        if (image) {
-            setIsProcessing(true);
-            try {
-                const result = await removeBackground({ image_file_b64: image.split(',')[1] });
-                 if (result.error) {
-                    throw new Error(result.error);
-                }
-                const resultUrl = `data:image/png;base64,${result.image_file_b64}`;
-                setImageWithBgRemoved(resultUrl);
-            } catch (error: any) {
-                 toast({ variant: "destructive", title: "Background Removal Failed", description: error.message || "Could not automatically remove background. The original image will be used." });
-                 // Fallback to original if server fails, but let user know.
-                 setImageWithBgRemoved(image); 
-            } finally {
-                setIsProcessing(false);
+        setIsProcessing(true);
+        try {
+            const result = await removeBackground({ image_file_b64: image.split(',')[1] });
+             if (result.error) {
+                throw new Error(result.error);
             }
+            const resultUrl = `data:image/png;base64,${result.image_file_b64}`;
+            setImageWithBgRemoved(resultUrl);
+        } catch (error: any) {
+             toast({ variant: "destructive", title: "Background Removal Failed", description: error.message || "Could not automatically remove background. The original image will be used." });
+             setImageWithBgRemoved(image); 
+        } finally {
+            setIsProcessing(false);
         }
     }
     
-    const processImage = useCallback(async () => {
+    const generateFinalImage = useCallback(async () => {
         if (!imageWithBgRemoved || !croppedAreaPixels) {
+            toast({ variant: "destructive", title: "Error", description: "Please position the crop area first." });
             return;
         }
         setIsGenerating(true);
@@ -116,7 +121,7 @@ export default function PassportPhotoPage() {
                 bgColor
             );
             setProcessedImage(croppedImage);
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
             toast({ variant: "destructive", title: "Processing Error", description: "Could not process the image." });
         } finally {
@@ -126,10 +131,10 @@ export default function PassportPhotoPage() {
 
     useEffect(() => {
         if (processedImage) {
-            processImage();
+            generateFinalImage();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [bgColor]);
+    }, [bgColor, format]);
 
     const handleDownload = () => {
         if (!processedImage) return;
@@ -198,7 +203,7 @@ export default function PassportPhotoPage() {
 
                         <div className="space-y-2">
                             <Label htmlFor="ratio">Choose Format</Label>
-                            <Select onValueChange={(value) => setFormat(value as PassportKey)} defaultValue={format} disabled={isProcessing || !imageWithBgRemoved}>
+                            <Select onValueChange={(value) => setFormat(value as PassportKey)} defaultValue={format} disabled={isProcessing || !imageWithBgRemoved || isGenerating}>
                                 <SelectTrigger id="ratio">
                                     <SelectValue placeholder="Select a format" />
                                 </SelectTrigger>
@@ -223,19 +228,15 @@ export default function PassportPhotoPage() {
                                         )}
                                         style={{ backgroundColor: color.value }}
                                         aria-label={color.name}
-                                        disabled={isProcessing || !imageWithBgRemoved}
+                                        disabled={isProcessing || !imageWithBgRemoved || isGenerating}
                                     />
                                 ))}
                             </div>
                         </div>
 
                          <div className="flex flex-col gap-4 !mt-8">
-                            <Button onClick={processImage} disabled={isProcessing || !!processedImage || !imageWithBgRemoved}>
-                                {isProcessing ? (
-                                    <Loader2 className="animate-spin" />
-                                ) : (
-                                    isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles/>
-                                )}
+                            <Button onClick={generateFinalImage} disabled={isProcessing || !!processedImage || !imageWithBgRemoved || isGenerating}>
+                                {isProcessing ? <Loader2 className="animate-spin" /> : isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles/>}
                                 {isProcessing ? 'Removing Background...' : (isGenerating ? 'Generating...' : 'Generate Photo')}
                             </Button>
                            {processedImage && (
